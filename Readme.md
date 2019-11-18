@@ -1,7 +1,7 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Александр Антонов](https://up.htmlacademy.ru/ecmascript/10/user/417937).
-* Наставник: `Неизвестно`.
+* Наставник: [Александр Миловидов](https://htmlacademy.ru/profile/id1144203)..
 
 ---
 
