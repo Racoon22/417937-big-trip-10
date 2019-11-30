@@ -7,7 +7,10 @@ import {createTripDaysTemplate} from './components/trip-days';
 import {createTripDayTemplate} from './components/trip-day';
 import {createTripEventTemplate} from './components/trip-event';
 
-const TASK_COUNT = 3;
+import {generateEvents} from "./mock/event";
+
+const TASK_COUNT = 10;
+let events = generateEvents(TASK_COUNT);
 
 const render = (container, template, place = `beforeend`) => {
   container.insertAdjacentHTML(place, template);
@@ -30,6 +33,6 @@ render(tripDays, createTripDayTemplate());
 
 const tripDay = document.querySelector(`.trip-events__list`);
 
-new Array(TASK_COUNT).fill(``).forEach(() => {
-  render(tripDay, createTripEventTemplate());
+events.forEach((event) => {
+  render(tripDay, createTripEventTemplate(event));
 });
