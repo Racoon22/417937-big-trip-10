@@ -1,4 +1,5 @@
-import {MonthNames} from "../const";
+import {MONTH_NAMES} from "../const";
+import {createElement} from "../utils";
 
 const getCities = (events) => {
   let cities = events.map((event) => event.city);
@@ -10,15 +11,14 @@ const getDuration = (events) => {
   const dateFinish = events[events.length - 1].dateStart;
   let duration;
   if (dateStart.getMonth() === dateFinish.getMonth()) {
-    duration = `${MonthNames[dateStart.getMonth()]} ${dateStart.getDate()} &mdash; ${dateFinish.getDate()}`;
+    duration = `${MONTH_NAMES[dateStart.getMonth()]} ${dateStart.getDate()} &mdash; ${dateFinish.getDate()}`;
   } else {
-    duration = `${MonthNames[dateStart.getMonth()]} ${dateStart.getDate()} &mdash; ${MonthNames[dateFinish.getMonth()]} ${dateFinish.getDate()}`;
+    duration = `${MONTH_NAMES[dateStart.getMonth()]} ${dateStart.getDate()} &mdash; ${MONTH_NAMES[dateFinish.getMonth()]} ${dateFinish.getDate()}`;
   }
   return duration;
 };
 
-
-export const createTripInfoTemplate = (events) => {
+const createTripInfoTemplate = (events) => {
   events.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
   const cities = Array.from(getCities(events));
   const title = cities > 3 ? `${cities.shift()} &mdash; ${cities.pop()}` : cities.join(` &mdash; `);
@@ -31,3 +31,25 @@ export const createTripInfoTemplate = (events) => {
      </div>`
   );
 };
+export default class TripInfo {
+  constructor(events) {
+    this._element = null;
+    this._events = events;
+  }
+
+  getTemplate() {
+    return createTripInfoTemplate(this._events);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

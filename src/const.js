@@ -1,4 +1,4 @@
-export const Offers =
+export const OFFERS =
   [
     {
       title: `Add luggage`,
@@ -27,7 +27,7 @@ export const Offers =
     }
   ];
 
-export const MonthNames = [
+export const MONTH_NAMES = [
   `Jan`,
   `Feb`,
   `Mar`,
@@ -42,7 +42,7 @@ export const MonthNames = [
   `Dec`,
 ];
 
-export const CitiesName = [
+export const CITIES_NAME = [
   `Geneva`,
   `Chamonix`,
   `Amsterdam`,
