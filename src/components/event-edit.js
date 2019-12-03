@@ -1,5 +1,5 @@
 import {castZeroFirstFormat, createElement} from "../utils";
-import {Offers} from "../const";
+import {OFFERS} from "../const";
 
 const castDateTimeFormat = (date) => {
   let yy = date.getYear();
@@ -42,7 +42,7 @@ const createEventEditTemplate = (event) => {
   const formattedDateEnd = castDateTimeFormat(dateEnd);
 
   const imagesMarkup = generateImgagesMarkup(photos);
-  const offersMarkup = generateOffersMarkup(Offers, offers);
+  const offersMarkup = generateOffersMarkup(OFFERS, offers);
 
   return (
     `<li class="trip-events__item">
@@ -192,7 +192,7 @@ const createEventEditTemplate = (event) => {
   );
 };
 
-export default class EventAdd {
+export default class EventEdit {
   constructor(event) {
     this._element = null;
     this._event = event;

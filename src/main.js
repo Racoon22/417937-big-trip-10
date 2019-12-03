@@ -8,17 +8,33 @@ import Sort from "./components/sort";
 import TripDays from "./components/trip-days";
 import TripEvent from "./components/trip-event";
 import TripDay from "./components/trip-day";
+import EventEdit from "./components/event-edit";
 
 const TASK_COUNT = 3;
 let events = generateEvents(TASK_COUNT);
 events.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
 
+
 const renderTripDay = (day) => {
   const tripDay = new TripDay(day);
   const eventListElement = tripDay.getElement().querySelector('.trip-events__list');
   const dayEvents = events.filter((event) => castDateKebabFormat(event.dateStart) === day);
+
   dayEvents.forEach((event) => {
-    render(eventListElement, new TripEvent(event).getElement(), RenderPosition.BEFOREBEGIN);
+    const eventComponent = new TripEvent(event);
+    const eventEditComponent = new EventEdit(event);
+    const editButton = eventComponent.getElement().querySelector('.event__rollup-btn');
+    const submitButton = eventEditComponent.getElement().querySelector('.event__rollup-btn');
+
+    editButton.addEventListener('click', function () {
+      eventListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+    });
+
+    submitButton.addEventListener('click', function () {
+      eventListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+    });
+
+    render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREBEGIN);
   });
   return tripDay;
 };
