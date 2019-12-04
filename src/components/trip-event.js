@@ -1,4 +1,4 @@
-import {castTimeFormat} from "../utils";
+import {castTimeFormat, createElement} from "../utils";
 
 const generateTimeInterval = (dateStart, dateEnd) => {
   const daysDiff = Math.abs(dateStart.getDay() - dateEnd.getDay());
@@ -36,7 +36,7 @@ const generateOffersMarkup = (offers) => {
   }).join(`\n`);
 };
 
-export const createTripEventTemplate = (event) => {
+const createTripEventTemplate = (event) => {
   const {type, title, dateStart, dateEnd, price, offers} = event;
   const timeInterval = generateTimeInterval(dateStart, dateEnd);
 
@@ -77,3 +77,26 @@ export const createTripEventTemplate = (event) => {
     </li>`
   );
 };
+
+export default class TripEvent {
+  constructor(event) {
+    this._element = null;
+    this._event = event;
+  }
+
+  getTemplate() {
+    return createTripEventTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

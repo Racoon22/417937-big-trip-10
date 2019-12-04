@@ -1,5 +1,5 @@
 import {getRandomInteger, getRandomArrayItem, getRandomDateTime} from "../utils";
-import {CitiesName, Offers} from "../const";
+import {CITIES_NAME, OFFERS} from "../const";
 
 const PHOTO_MAX_COUNT = 8;
 const PHOTO_MIN_COUNT = 3;
@@ -21,7 +21,7 @@ const generateDescription = () => {
 };
 
 const generateOffers = () => {
-  return Offers
+  return OFFERS
     .sort(() => Math.random() - 0.5)
     .slice(0, getRandomInteger(OFFERS_MIN_COUNT, OFFERS_MAX_COUNT));
 };
@@ -34,7 +34,7 @@ const generateEvent = () => {
   return {
     type: getRandomArrayItem(eventTypes),
     title: `random title`,
-    city: getRandomArrayItem(CitiesName),
+    city: getRandomArrayItem(CITIES_NAME),
     description: generateDescription(),
     photos: generatePhotos(getRandomInteger(PHOTO_MIN_COUNT, PHOTO_MAX_COUNT)),
     dateStart: getRandomDateTime(),
