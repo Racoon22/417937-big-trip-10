@@ -1,5 +1,4 @@
 import {MONTH_NAMES} from "../const";
-import {createElement} from "../utils/common";
 import AbstractComponent from "./abstract-component";
 
 const getCities = (events) => {

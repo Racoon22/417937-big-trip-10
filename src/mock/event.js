@@ -31,14 +31,16 @@ const generatePhotos = (count) => {
 };
 
 const generateEvent = () => {
+  const dates = [getRandomDateTime(), getRandomDateTime()];
+  dates.sort((a, b) => a.getTime() - b.getTime());
   return {
     type: getRandomArrayItem(eventTypes),
     title: `random title`,
     city: getRandomArrayItem(CITIES_NAME),
     description: generateDescription(),
     photos: generatePhotos(getRandomInteger(PHOTO_MIN_COUNT, PHOTO_MAX_COUNT)),
-    dateStart: getRandomDateTime(),
-    dateEnd: getRandomDateTime(),
+    dateStart: dates[0],
+    dateEnd: dates[1],
     price: getRandomInteger(PRICE_MIN, PRICE_MAX),
     offers: generateOffers(),
   };

@@ -204,6 +204,6 @@ export default class EventEdit extends AbstractComponent {
   }
 
   setSubmitHandler(handler) {
-    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', handler);
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
   }
 }

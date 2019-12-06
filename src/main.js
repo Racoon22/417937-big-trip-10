@@ -1,16 +1,7 @@
 import {render, RenderPosition} from "./utils/render";
-import {castDateKebabFormat} from "./utils/common";
 import {generateEvents} from "./mock/event";
-
-import TripInfo from "./components/trip-info";
 import Menu from "./components/menu";
 import Filter from "./components/filter";
-import Sort from "./components/sort";
-import TripDays from "./components/trip-days";
-import TripEvent from "./components/trip-event";
-import TripDay from "./components/trip-day";
-import EventEdit from "./components/event-edit";
-import NoEvent from "./components/no-events";
 import TripController from "./controllers/trip";
 
 const TASK_COUNT = 3;

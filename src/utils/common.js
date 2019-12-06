@@ -10,7 +10,7 @@ export const getRandomArrayItem = (array) => {
 };
 
 export const getRandomDateTime = () => {
-  const targetDate = new Date;
+  const targetDate = new Date();
   const sing = Math.random() > 0.5 ? 1 : -1;
   const diffValue = sing * getRandomInteger(0, 2);
   const hours = getRandomInteger(0, 23);
@@ -19,12 +19,6 @@ export const getRandomDateTime = () => {
   targetDate.setHours(hours, minutes);
 
   return targetDate;
-};
-
-export const getRandomTime = () => {
-  const hours = castTimeFormat(getRandomInteger(0, 24));
-  const minuts = castTimeFormat(getRandomInteger(0, 59));
-  return `${hours}:${minuts}`;
 };
 
 export const castTimeFormat = (date) => {

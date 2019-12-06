@@ -10,10 +10,8 @@ import {render, RenderPosition, replace} from "../utils/render";
 
 const renderTripDay = (day, events) => {
   const tripDay = new TripDay(day);
-  const eventListElement = tripDay.getElement().querySelector('.trip-events__list');
-  const dayEvents = events.filter((event) => castDateKebabFormat(event.dateStart) === day);
-
-  dayEvents.forEach((event) => {
+  const eventListElement = tripDay.getElement().querySelector(`.trip-events__list`);
+  events.forEach((event) => {
     const replaceEventToEdit = () => {
       replace(eventEditComponent, eventComponent);
     };
@@ -67,12 +65,22 @@ export default class TripController {
       render(this._container, this._sort, RenderPosition.BEFOREBEGIN);
       render(this._container, this._tripDays, RenderPosition.BEFOREBEGIN);
 
-      const days = Array.from(new Set(events.map((event) => castDateKebabFormat(event.dateStart))));
-      const tripDaysList = this._tripDays.getElement();
-      days.forEach((day) => {
-        const tripDay = renderTripDay(day, events);
-        render(tripDaysList, tripDay, RenderPosition.BEFOREBEGIN)
+      const days = {};
+      events.forEach((event) => {
+        const date = castDateKebabFormat(event.dateStart);
+        if (days.hasOwnProperty(date)) {
+          days[date].push(event);
+        } else {
+          days[date] = [event];
+        }
       });
+
+      const tripDaysList = this._tripDays.getElement();
+      const keys = Object.keys(days);
+      for (const day of keys) {
+        const tripDay = renderTripDay(day, days[day]);
+        render(tripDaysList, tripDay, RenderPosition.BEFOREBEGIN);
+      }
     } else {
       render(this._container, this._noEvent, RenderPosition.BEFOREBEGIN);
     }
