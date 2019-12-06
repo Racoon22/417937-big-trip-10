@@ -1,5 +1,6 @@
-import {castZeroFirstFormat, createElement} from "../utils";
 import {OFFERS} from "../const";
+import {castZeroFirstFormat} from "../utils/common";
+import AbstractComponent from "./abstract-component";
 
 const castDateTimeFormat = (date) => {
   let yy = date.getYear();
@@ -192,9 +193,9 @@ const createEventEditTemplate = (event) => {
   );
 };
 
-export default class EventEdit {
+export default class EventEdit extends AbstractComponent {
   constructor(event) {
-    this._element = null;
+    super();
     this._event = event;
   }
 
@@ -202,15 +203,7 @@ export default class EventEdit {
     return createEventEditTemplate(this._event);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setSubmitHandler(handler) {
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', handler);
   }
 }

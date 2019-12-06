@@ -43,25 +43,3 @@ export const castDateKebabFormat = (date) => {
   let dd = castZeroFirstFormat(date.getDate());
   return `${yyyy}-${mm}-${dd}`;
 };
-
-export const createElement = (template) => {
-  const newElement =  document.createElement(`div`);
-  newElement.innerHTML = template;
-
-  return newElement.firstChild;
-};
-
-export const render = (container, element, place) => {
-  switch (place) {
-    case RenderPosition.AFTERBEGIN:
-      container.prepend(element);
-      break;
-    default:
-      container.append(element)
-  }
-};
-
-export const RenderPosition = {
-  AFTERBEGIN: `afterbegin`,
-  BEFOREBEGIN: `beforebegin`
-};

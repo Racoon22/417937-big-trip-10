@@ -1,4 +1,4 @@
-import {getRandomInteger, getRandomArrayItem, getRandomDateTime} from "../utils";
+import {getRandomInteger, getRandomArrayItem, getRandomDateTime} from "../utils/common";
 import {CITIES_NAME, OFFERS} from "../const";
 
 const PHOTO_MAX_COUNT = 8;

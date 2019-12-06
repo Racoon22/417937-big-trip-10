@@ -1,4 +1,5 @@
-import {castDateKebabFormat, render, RenderPosition} from "./utils";
+import {render, RenderPosition} from "./utils/render";
+import {castDateKebabFormat} from "./utils/common";
 import {generateEvents} from "./mock/event";
 
 import TripInfo from "./components/trip-info";
@@ -37,50 +38,47 @@ const renderTripDay = (day) => {
     };
 
     const eventComponent = new TripEvent(event);
-    const editButton = eventComponent.getElement().querySelector('.event__rollup-btn');
 
     const eventEditComponent = new EventEdit(event);
-    const submitButton = eventEditComponent.getElement().querySelector('.event__rollup-btn');
 
-    editButton.addEventListener('click', function () {
+    eventComponent.setEditButtonClickHandler(() => {
       replaceEventToEdit();
       document.addEventListener(`keydown`, onEscPressDown);
     });
 
-    submitButton.addEventListener('click', function () {
+    eventEditComponent.setSubmitHandler(() => {
       replaceEditToEvent();
     });
 
-
-    render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREBEGIN);
+    render(eventListElement, eventComponent, RenderPosition.BEFOREBEGIN);
   });
   return tripDay;
 };
 
 const tripControls = document.querySelector(`.trip-main__trip-controls`);
-render(tripControls, new Menu().getElement(), RenderPosition.BEFOREBEGIN);
-render(tripControls, new Filter().getElement(), RenderPosition.BEFOREBEGIN);
+render(tripControls, new Menu(), RenderPosition.BEFOREBEGIN);
+render(tripControls, new Filter(), RenderPosition.BEFOREBEGIN);
 
 const tripEvents = document.querySelector(`.trip-events`);
 
 if (events.length > 0) {
   const tripInfo = document.querySelector(`.trip-main__trip-info`);
-  render(tripInfo, new TripInfo(events).getElement(), RenderPosition.AFTERBEGIN);
+  render(tripInfo, new TripInfo(events), RenderPosition.AFTERBEGIN);
 
   const totalElement = tripInfo.querySelector(`.trip-info__cost-value`);
   const totalCost = events.reduce((reducer, event) => reducer + event.price, 0);
   totalElement.textContent = totalCost.toString();
 
-  render(tripEvents, new Sort().getElement(), RenderPosition.BEFOREBEGIN);
+  render(tripEvents, new Sort(), RenderPosition.BEFOREBEGIN);
 
   const tripDays = new TripDays();
-  render(tripEvents, tripDays.getElement(), RenderPosition.BEFOREBEGIN);
+  render(tripEvents, tripDays, RenderPosition.BEFOREBEGIN);
 
   const days = Array.from(new Set(events.map((event) => castDateKebabFormat(event.dateStart))));
   days.forEach((day) => {
     const tripDay = renderTripDay(day);
-    render(tripDays.getElement(), tripDay.getElement(), RenderPosition.BEFOREBEGIN)
+    render(tripDays.getElement(), tripDay, RenderPosition.BEFOREBEGIN)
   });
 } else {
-  render(tripEvents, new NoEvent().getElement(), RenderPosition.BEFOREBEGIN);
+  render(tripEvents, new NoEvent(), RenderPosition.BEFOREBEGIN);
 }

@@ -1,4 +1,5 @@
-import {castTimeFormat, createElement} from "../utils";
+import {castTimeFormat} from "../utils/common";
+import AbstractComponent from "./abstract-component";
 
 const generateTimeInterval = (dateStart, dateEnd) => {
   const daysDiff = Math.abs(dateStart.getDay() - dateEnd.getDay());
@@ -78,9 +79,9 @@ const createTripEventTemplate = (event) => {
   );
 };
 
-export default class TripEvent {
+export default class TripEvent extends AbstractComponent {
   constructor(event) {
-    this._element = null;
+    super();
     this._event = event;
   }
 
@@ -88,15 +89,7 @@ export default class TripEvent {
     return createTripEventTemplate(this._event);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setEditButtonClickHandler(handler) {
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', handler)
   }
 }
