@@ -22,8 +22,8 @@ export const getRandomDateTime = () => {
 };
 
 export const castTimeFormat = (date) => {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  const hours = castZeroFirstFormat(date.getHours());
+  const minutes = castZeroFirstFormat(date.getMinutes());
   return `${hours}: ${minutes}`;
 };
 
