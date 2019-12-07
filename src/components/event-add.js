@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 const createEventAddTemplate = () => {
   return (
@@ -112,24 +112,8 @@ const createEventAddTemplate = () => {
   );
 };
 
-export default class EventAdd {
-  constructor() {
-    this._element = null;
-  }
-
+export default class EventAdd extends AbstractComponent {
   getTemplate() {
     return createEventAddTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

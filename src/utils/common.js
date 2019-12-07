@@ -10,7 +10,7 @@ export const getRandomArrayItem = (array) => {
 };
 
 export const getRandomDateTime = () => {
-  const targetDate = new Date;
+  const targetDate = new Date();
   const sing = Math.random() > 0.5 ? 1 : -1;
   const diffValue = sing * getRandomInteger(0, 2);
   const hours = getRandomInteger(0, 23);
@@ -19,12 +19,6 @@ export const getRandomDateTime = () => {
   targetDate.setHours(hours, minutes);
 
   return targetDate;
-};
-
-export const getRandomTime = () => {
-  const hours = castTimeFormat(getRandomInteger(0, 24));
-  const minuts = castTimeFormat(getRandomInteger(0, 59));
-  return `${hours}:${minuts}`;
 };
 
 export const castTimeFormat = (date) => {
@@ -42,26 +36,4 @@ export const castDateKebabFormat = (date) => {
   let mm = castZeroFirstFormat(date.getMonth() + 1);
   let dd = castZeroFirstFormat(date.getDate());
   return `${yyyy}-${mm}-${dd}`;
-};
-
-export const createElement = (template) => {
-  const newElement =  document.createElement(`div`);
-  newElement.innerHTML = template;
-
-  return newElement.firstChild;
-};
-
-export const render = (container, element, place) => {
-  switch (place) {
-    case RenderPosition.AFTERBEGIN:
-      container.prepend(element);
-      break;
-    default:
-      container.append(element)
-  }
-};
-
-export const RenderPosition = {
-  AFTERBEGIN: `afterbegin`,
-  BEFOREBEGIN: `beforebegin`
 };

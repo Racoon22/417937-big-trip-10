@@ -1,5 +1,5 @@
 import {MONTH_NAMES} from "../const";
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 const getCities = (events) => {
   let cities = events.map((event) => event.city);
@@ -31,25 +31,13 @@ const createTripInfoTemplate = (events) => {
      </div>`
   );
 };
-export default class TripInfo {
+export default class TripInfo extends AbstractComponent {
   constructor(events) {
-    this._element = null;
+    super();
     this._events = events;
   }
 
   getTemplate() {
     return createTripInfoTemplate(this._events);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
