@@ -43,6 +43,7 @@ const generateEvent = () => {
     dateEnd: dates[1],
     price: getRandomInteger(PRICE_MIN, PRICE_MAX),
     offers: generateOffers(),
+    duration: dates[1] - dates[0]
   };
 };
 

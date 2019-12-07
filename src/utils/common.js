@@ -37,3 +37,7 @@ export const castDateKebabFormat = (date) => {
   let dd = castZeroFirstFormat(date.getDate());
   return `${yyyy}-${mm}-${dd}`;
 };
+
+export const capitalizeFirstLetter = (string) => {
+  return string.slice(0, 1).toUpperCase() + string.slice(1);
+};
