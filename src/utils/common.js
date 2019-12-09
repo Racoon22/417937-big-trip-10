@@ -22,8 +22,8 @@ export const getRandomDateTime = () => {
 };
 
 export const castTimeFormat = (date) => {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  const hours = castZeroFirstFormat(date.getHours());
+  const minutes = castZeroFirstFormat(date.getMinutes());
   return `${hours}: ${minutes}`;
 };
 
@@ -36,4 +36,8 @@ export const castDateKebabFormat = (date) => {
   let mm = castZeroFirstFormat(date.getMonth() + 1);
   let dd = castZeroFirstFormat(date.getDate());
   return `${yyyy}-${mm}-${dd}`;
+};
+
+export const capitalizeFirstLetter = (string) => {
+  return string.slice(0, 1).toUpperCase() + string.slice(1);
 };
