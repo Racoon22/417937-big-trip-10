@@ -80,7 +80,7 @@ const createTripEventTemplate = (event) => {
   );
 };
 
-export default class TripEvent extends AbstractComponent {
+export default class Point extends AbstractComponent {
   constructor(event) {
     super();
     this._event = event;

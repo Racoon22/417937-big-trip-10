@@ -193,17 +193,19 @@ const createEventEditTemplate = (event) => {
   );
 };
 
-export default class EventEdit extends AbstractComponent {
-  constructor(event) {
+export default class PointEdit extends AbstractComponent {
+  constructor(point) {
     super();
-    this._event = event;
+    this._point = point;
+
   }
 
   getTemplate() {
-    return createEventEditTemplate(this._event);
+    return createEventEditTemplate(this._point);
   }
 
   setSubmitHandler(handler) {
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
   }
+
 }
