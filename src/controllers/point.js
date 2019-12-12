@@ -65,5 +65,5 @@ export default class PointController {
       this._replaceEditToPoint();
     }
     document.removeEventListener(`keydown`, this._onEscPressDown);
-  };
+  }
 }

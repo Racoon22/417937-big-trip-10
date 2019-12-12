@@ -1,12 +1,10 @@
 import TripDay from "../components/trip-day";
-import Point from "../components/point";
-import PointEdit from "../components/point-edit";
 import TripInfo from "../components/trip-info";
 import Sort, {SORT_TYPES} from "../components/sort";
 import TripDays from "../components/trip-days";
 import NoEvent from "../components/no-events";
 import {castDateKebabFormat} from "../utils/common";
-import {render, RenderPosition, replace} from "../utils/render";
+import {render, RenderPosition} from "../utils/render";
 import TripDayInfo from "../components/trip-day-info";
 import PointController from "./point";
 
@@ -108,8 +106,6 @@ export default class TripController {
   }
 
   _onDataChange(pointController, oldData, newData) {
-    console.log(oldData);
-    console.log(newData);
     const index = this._points.findIndex((it) => it === oldData);
 
     if (index === -1) {
