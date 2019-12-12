@@ -38,6 +38,7 @@ const generateEvent = () => {
     title: `random title`,
     city: getRandomArrayItem(CITIES_NAME),
     description: generateDescription(),
+    isFavorite: Math.random() > 0.5,
     photos: generatePhotos(getRandomInteger(PHOTO_MIN_COUNT, PHOTO_MAX_COUNT)),
     dateStart: dates[0],
     dateEnd: dates[1],

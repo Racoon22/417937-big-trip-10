@@ -10,7 +10,7 @@ import {render, RenderPosition, replace} from "../utils/render";
 import TripDayInfo from "../components/trip-day-info";
 import PointController from "./point";
 
-const renderTripDay = (events, date = null) => {
+const renderTripDay = (events, onDataChange, date = null) => {
   const tripDay = new TripDay();
   if (date) {
     const infoContainer = tripDay.getElement().querySelector(`.day__info`);
@@ -19,41 +19,13 @@ const renderTripDay = (events, date = null) => {
   const eventListElement = tripDay.getElement().querySelector(`.trip-events__list`);
 
   events.forEach((point) => {
-    const pointController = new PointController(eventListElement);
+    const pointController = new PointController(eventListElement, onDataChange);
     pointController.render(point);
-    // const replaceEventToEdit = () => {
-    //   replace(eventEditComponent, eventComponent);
-    // };
-    //
-    // const replaceEditToEvent = () => {
-    //   replace(eventComponent, eventEditComponent);
-    // };
-    //
-    // const onEscPressDown = (evt) => {
-    //   if (evt.key === `Escape` || evt.key === `Esc`) {
-    //     replaceEditToEvent();
-    //   }
-    //   document.removeEventListener(`keydown`, onEscPressDown);
-    // };
-    //
-    // const eventComponent = new Point(event);
-    // const eventEditComponent = new PointEdit(event);
-    //
-    // eventComponent.setEditButtonClickHandler(() => {
-    //   replaceEventToEdit();
-    //   document.addEventListener(`keydown`, onEscPressDown);
-    // });
-    //
-    // eventEditComponent.setSubmitHandler(() => {
-    //   replaceEditToEvent();
-    // });
-    //
-    // render(eventListElement, eventComponent, RenderPosition.BEFOREBEGIN);
   });
   return tripDay;
 };
 
-const renderDays = (container, events) => {
+const renderDays = (container, events, onDataChange) => {
   const days = {};
   events.forEach((event) => {
     const date = castDateKebabFormat(event.dateStart);
@@ -65,13 +37,13 @@ const renderDays = (container, events) => {
   });
   const keys = Object.keys(days);
   for (const day of keys) {
-    const tripDay = renderTripDay(days[day], day);
+    const tripDay = renderTripDay(days[day], onDataChange, day);
     render(container, tripDay, RenderPosition.BEFOREBEGIN);
   }
 };
 
-const renderSortedTrip = (container, events) => {
-  const tripDay = renderTripDay(events);
+const renderSortedTrip = (container, events, onDataChange) => {
+  const tripDay = renderTripDay(events, onDataChange);
   render(container, tripDay, RenderPosition.BEFOREBEGIN);
 };
 
@@ -82,10 +54,12 @@ export default class TripController {
     this._noEvent = new NoEvent();
     this._sort = new Sort();
 
-    this._pointsController = [];
+    this._points = [];
+    this._onDataChange = this._onDataChange.bind(this);
   }
 
   render(events) {
+    this._points = events;
     if (events.length > 0) {
       this._tripInfo = new TripInfo(events);
       const tripInfo = document.querySelector(`.trip-main__trip-info`);
@@ -119,7 +93,7 @@ export default class TripController {
         const dateSortLabel = this._sort.getElement().querySelector(`.trip-sort__item--day`);
 
         if (sortType === SORT_TYPES.EVENT) {
-          renderDays(tripDaysList, sortedEvents);
+          renderDays(tripDaysList, sortedEvents, this._onDataChange());
           dateSortLabel.textContent = `Date`;
         } else {
           renderSortedTrip(tripDaysList, sortedEvents);
@@ -127,9 +101,24 @@ export default class TripController {
         }
       });
 
-      renderDays(tripDaysList, events);
+      renderDays(tripDaysList, events, this._onDataChange);
     } else {
       render(this._container, this._noEvent, RenderPosition.BEFOREBEGIN);
     }
   }
+
+  _onDataChange(pointController, oldData, newData) {
+    console.log(oldData);
+    console.log(newData);
+    const index = this._points.findIndex((it) => it === oldData);
+
+    if (index === -1) {
+      return;
+    }
+
+    this._points = [].concat(this._points.slice(0, index), newData, this._points.slice(index + 1));
+    pointController.render(this._points[index]);
+  }
+
+
 }
