@@ -4,7 +4,7 @@ import Menu from "./components/menu";
 import Filter from "./components/filter";
 import TripController from "./controllers/trip";
 
-const TASK_COUNT = 3;
+const TASK_COUNT = 9;
 let events = generateEvents(TASK_COUNT);
 
 const tripControls = document.querySelector(`.trip-main__trip-controls`);
