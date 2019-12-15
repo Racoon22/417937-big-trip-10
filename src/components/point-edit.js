@@ -280,6 +280,11 @@ export default class PointEdit extends AbstractSmartComponent {
 
   }
 
+  reset() {
+    const point = this._point;
+    this.rerender();
+  }
+
   recoveryListeners() {
     this._subscribeOnEvents();
   }

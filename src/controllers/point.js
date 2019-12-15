@@ -48,13 +48,13 @@ export default class PointController {
   }
 
   _replaceEditToPoint() {
-    // this._pointEditComponent.reset();
+    this._pointEditComponent.reset();
     replace(this._pointComponent, this._pointEditComponent);
     this._mode = Mode.DEFAULT;
   }
 
   _replacePointToEdit() {
-    // this._onViewChange();
+    this._onViewChange();
 
     replace(this._pointEditComponent, this._pointComponent);
     this._mode = Mode.EDIT;
@@ -65,5 +65,11 @@ export default class PointController {
       this._replaceEditToPoint();
     }
     document.removeEventListener(`keydown`, this._onEscPressDown);
+  }
+
+  setDefaultView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._replaceEditToPoint();
+    }
   }
 }

@@ -21,7 +21,7 @@ const getDuration = (events) => {
 const createTripInfoTemplate = (events) => {
   events.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
   const cities = Array.from(getCities(events));
-  const title = cities > 3 ? `${cities.shift()} &mdash; ${cities.pop()}` : cities.join(` &mdash; `);
+  const title = cities.length > 3 ? `${cities.shift().place} &mdash; ${cities.pop().place}` : cities.map((city) => city.place).join(` &mdash; `);
   const duration = getDuration(events);
 
   return (
