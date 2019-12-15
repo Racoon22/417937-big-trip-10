@@ -1,3 +1,5 @@
+require("flatpickr/dist/flatpickr.min.css");
+import flatpikr from "flatpickr"
 import {OFFERS} from "../const";
 import {castZeroFirstFormat} from "../utils/common";
 import AbstractSmartComponent from "./abstract-smart-component";
@@ -219,6 +221,10 @@ export default class PointEdit extends AbstractSmartComponent {
     super();
     this._point = point;
     this._subscribeOnEvents();
+    this._flatpikrDayStart = null;
+    this._flatpikrDayEnd = null;
+
+    this._applayFlatpikr();
   }
 
   getTemplate() {
@@ -232,6 +238,37 @@ export default class PointEdit extends AbstractSmartComponent {
   setFavoriteButtonClickHandler(handler) {
     this.getElement().querySelector(`.event__favorite-checkbox`)
       .addEventListener(`click`, handler);
+  }
+
+  _applayFlatpikr() {
+    if (this._flatpikrDayStart) {
+      this._flatpikrDayStart.destroy();
+      this._flatpikrDayStart = null;
+    }
+    if (this._flatpikrDayEnd) {
+      this._flatpikrDayEnd.destroy();
+      this._flatpikrDayEnd = null;
+    }
+
+    const dateStartElement = this.getElement().querySelector(`#event-start-time-1`);
+    const dateEndElement = this.getElement().querySelector(`#event-end-time-1`);
+    this._flatpikrDayStart = flatpikr(dateStartElement, {
+      altInput: true,
+      enableTime: true,
+      dateFormat: "Y-m-d H:i",
+      altFormat: "d/m/y H:i",
+      allowInput: true,
+      defaultDate: this._point.dateStart,
+    });
+
+    this._flatpikrDayEnd = flatpikr(dateEndElement, {
+      altInput: true,
+      enableTime: true,
+      dateFormat: "Y-m-d H:i",
+      altFormat: "d/m/y H:i",
+      allowInput: true,
+      defaultDate: this._point.dateStart,
+    });
   }
 
   _subscribeOnEvents() {
@@ -287,5 +324,6 @@ export default class PointEdit extends AbstractSmartComponent {
 
   recoveryListeners() {
     this._subscribeOnEvents();
+    this._applayFlatpikr();
   }
 }

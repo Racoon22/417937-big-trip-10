@@ -1,12 +1,15 @@
 import {castTimeFormat} from "../utils/common";
 import AbstractComponent from "./abstract-component";
+import moment from "moment"
 
 const generateTimeInterval = (dateStart, dateEnd) => {
-  const timeDiff = dateEnd - dateStart;
+  const timeDiff = moment(dateEnd).diff(moment(dateStart));
+  let daysDiff = moment.utc(timeDiff).format("DD");
+  let hoursDiff = moment.utc(timeDiff).format("HH");
+  let minutesDiff = moment.utc(timeDiff).format("mm");
 
-  let daysDiff = Math.floor((timeDiff / 86400000));
-  let hoursDiff = Math.floor((timeDiff % 86400000) / 3600000);
-  let minutesDiff = Math.round(((timeDiff % 86400000) % 3600000) / 60000);
+  console.log(daysDiff);
+
   let formattedInterval = daysDiff > 0 ? castDateInterval(daysDiff) : ``;
   if (daysDiff > 0 || hoursDiff > 0) {
     formattedInterval += ` ${castHoursInterval(hoursDiff)}`;
@@ -15,15 +18,15 @@ const generateTimeInterval = (dateStart, dateEnd) => {
 };
 
 const castDateInterval = (days) => {
-  return days < 10 ? `0${days}D` : `${days}D`;
+  return `${days}D`;
 };
 
 const castHoursInterval = (hours) => {
-  return hours < 10 ? `0${hours}H` : `${hours}H`;
+  return `${hours}H`;
 };
 
 const castMinutesInterval = (minutes) => {
-  return minutes < 10 ? `0${minutes}M` : `${minutes}M`;
+  return `${minutes}M`;
 };
 
 const generateOffersMarkup = (offers) => {
