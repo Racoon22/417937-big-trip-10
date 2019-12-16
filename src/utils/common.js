@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const getRandomInteger = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -22,20 +24,11 @@ export const getRandomDateTime = () => {
 };
 
 export const castTimeFormat = (date) => {
-  const hours = castZeroFirstFormat(date.getHours());
-  const minutes = castZeroFirstFormat(date.getMinutes());
-  return `${hours}: ${minutes}`;
-};
-
-export const castZeroFirstFormat = (value) => {
-  return value < 10 ? `0${value}` : String(value);
+  return moment(date).format(`HH:mm`);
 };
 
 export const castDateKebabFormat = (date) => {
-  let yyyy = date.getFullYear();
-  let mm = castZeroFirstFormat(date.getMonth() + 1);
-  let dd = castZeroFirstFormat(date.getDate());
-  return `${yyyy}-${mm}-${dd}`;
+  return moment(date).format(`YYYY-MM-DD`);
 };
 
 export const capitalizeFirstLetter = (string) => {

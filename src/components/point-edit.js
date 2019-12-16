@@ -1,19 +1,10 @@
-require("flatpickr/dist/flatpickr.min.css");
-import flatpikr from "flatpickr"
+import moment from "moment";
+
+require(`flatpickr/dist/flatpickr.min.css`);
+import flatpikr from "flatpickr";
 import {OFFERS} from "../const";
-import {castZeroFirstFormat} from "../utils/common";
 import AbstractSmartComponent from "./abstract-smart-component";
 import {Destinations, eventTypes} from "../mock/event";
-
-const castDateTimeFormat = (date) => {
-  let yy = date.getYear();
-  let mm = castZeroFirstFormat(date.getMonth() + 1);
-  let dd = castZeroFirstFormat(date.getDate());
-  let hh = castZeroFirstFormat(date.getHours());
-  let ii = castZeroFirstFormat(date.getMinutes());
-
-  return `${dd}/${mm}/${yy} ${hh}:${ii}`;
-};
 
 const generateImagesMarkup = (images) => {
   return images.map((image) => {
@@ -67,8 +58,8 @@ const generateDestinationsMarkup = (type, city) => {
 
 const createEventEditTemplate = (event) => {
   const {type, city, dateStart, dateEnd, price, offers, isFavorite} = event;
-  const formattedDateStart = castDateTimeFormat(dateStart);
-  const formattedDateEnd = castDateTimeFormat(dateEnd);
+  const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
+  const formattedDateEnd = moment(dateEnd);
 
   const imagesMarkup = generateImagesMarkup(city.images);
   const availableOffers = OFFERS.filter((offer) => {
@@ -255,8 +246,8 @@ export default class PointEdit extends AbstractSmartComponent {
     this._flatpikrDayStart = flatpikr(dateStartElement, {
       altInput: true,
       enableTime: true,
-      dateFormat: "Y-m-d H:i",
-      altFormat: "d/m/y H:i",
+      dateFormat: `Y-m-d H:i`,
+      altFormat: `d/m/y H:i`,
       allowInput: true,
       defaultDate: this._point.dateStart,
     });
@@ -264,8 +255,8 @@ export default class PointEdit extends AbstractSmartComponent {
     this._flatpikrDayEnd = flatpikr(dateEndElement, {
       altInput: true,
       enableTime: true,
-      dateFormat: "Y-m-d H:i",
-      altFormat: "d/m/y H:i",
+      dateFormat: `Y-m-d H:i`,
+      altFormat: `d/m/y H:i`,
       allowInput: true,
       defaultDate: this._point.dateStart,
     });
@@ -318,7 +309,6 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   reset() {
-    const point = this._point;
     this.rerender();
   }
 

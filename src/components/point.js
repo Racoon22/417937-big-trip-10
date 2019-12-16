@@ -1,14 +1,12 @@
 import {castTimeFormat} from "../utils/common";
 import AbstractComponent from "./abstract-component";
-import moment from "moment"
+import moment from "moment";
 
 const generateTimeInterval = (dateStart, dateEnd) => {
   const timeDiff = moment(dateEnd).diff(moment(dateStart));
-  let daysDiff = moment.utc(timeDiff).format("DD");
-  let hoursDiff = moment.utc(timeDiff).format("HH");
-  let minutesDiff = moment.utc(timeDiff).format("mm");
-
-  console.log(daysDiff);
+  let daysDiff = moment.utc(timeDiff).format(`DD`);
+  let hoursDiff = moment.utc(timeDiff).format(`HH`);
+  let minutesDiff = moment.utc(timeDiff).format(`mm`);
 
   let formattedInterval = daysDiff > 0 ? castDateInterval(daysDiff) : ``;
   if (daysDiff > 0 || hoursDiff > 0) {

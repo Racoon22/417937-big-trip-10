@@ -41,7 +41,7 @@ const renderDays = (container, events, onDataChange, onViewChange) => {
     let daysPoints = renderTripDay(container, days[key], onDataChange, onViewChange, key);
     daysPoints.forEach((point) => {
       pointControllers.push(point);
-    })
+    });
   });
   return pointControllers;
 };
@@ -125,7 +125,7 @@ export default class TripController {
 
   _onViewChange() {
     this._pointControllers.forEach((it) => {
-      it.setDefaultView()
+      it.setDefaultView();
     });
   }
 
