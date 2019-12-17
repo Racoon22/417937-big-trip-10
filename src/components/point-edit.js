@@ -1,18 +1,12 @@
+import moment from "moment";
+
+require(`flatpickr/dist/flatpickr.min.css`);
+import flatpikr from "flatpickr";
 import {OFFERS} from "../const";
-import {castZeroFirstFormat} from "../utils/common";
-import AbstractComponent from "./abstract-component";
+import AbstractSmartComponent from "./abstract-smart-component";
+import {Destinations, eventTypes} from "../mock/event";
 
-const castDateTimeFormat = (date) => {
-  let yy = date.getYear();
-  let mm = castZeroFirstFormat(date.getMonth() + 1);
-  let dd = castZeroFirstFormat(date.getDate());
-  let hh = castZeroFirstFormat(date.getHours());
-  let ii = castZeroFirstFormat(date.getMinutes());
-
-  return `${dd}/${mm}/${yy} ${hh}:${ii}`;
-};
-
-const generateImgagesMarkup = (images) => {
+const generateImagesMarkup = (images) => {
   return images.map((image) => {
     return (
       `<img class="event__photo" src="${image}" alt="Event photo">`
@@ -37,13 +31,43 @@ const generateOffersMarkup = (offers, acceptedOffers) => {
   }).join(`\n`);
 };
 
-const createEventEditTemplate = (event) => {
-  const {type, description, dateStart, dateEnd, price, offers, photos} = event;
-  const formattedDateStart = castDateTimeFormat(dateStart);
-  const formattedDateEnd = castDateTimeFormat(dateEnd);
+const generateCitiesMarkup = (cities) => {
+  return cities.map((city) => {
+    return (
+      `<option value="${city.place}"></option>`
+    );
+  });
+};
 
-  const imagesMarkup = generateImgagesMarkup(photos);
-  const offersMarkup = generateOffersMarkup(OFFERS, offers);
+const generateDestinationsMarkup = (type, city) => {
+  let placeholder = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+  placeholder += type.category === `transfer` ? ` to ` : ` in `;
+  const citiesDatalistMarkup = generateCitiesMarkup(Destinations.filter((destination) => destination.place !== city.place));
+  return (
+    `<div class="event__field-group  event__field-group--destination">
+       <label class="event__label  event__type-output" for="event-destination-1">
+          ${placeholder}
+        </label>
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city.place}" list="destination-list-1">
+        <datalist id="destination-list-1">
+            ${citiesDatalistMarkup}
+        </datalist>
+     </div>`
+  );
+};
+
+const createEventEditTemplate = (event) => {
+  const {type, city, dateStart, dateEnd, price, offers, isFavorite} = event;
+  const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
+  const formattedDateEnd = moment(dateEnd);
+
+  const imagesMarkup = generateImagesMarkup(city.images);
+  const availableOffers = OFFERS.filter((offer) => {
+    return type.offers.indexOf(offer.type) !== -1;
+  });
+  const offersMarkup = generateOffersMarkup(availableOffers, offers);
+
+  const destinationMarkup = generateDestinationsMarkup(type, city);
 
   return (
     `<li class="trip-events__item">
@@ -52,7 +76,7 @@ const createEventEditTemplate = (event) => {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${type.name}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -117,17 +141,7 @@ const createEventEditTemplate = (event) => {
           </div>
         </div>
 
-        <div class="event__field-group  event__field-group--destination">
-          <label class="event__label  event__type-output" for="event-destination-1">
-            Sightseeing at
-          </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Saint Petersburg" list="destination-list-1">
-          <datalist id="destination-list-1">
-            <option value="Amsterdam"></option>
-            <option value="Geneva"></option>
-            <option value="Chamonix"></option>
-          </datalist>
-        </div>
+        ${destinationMarkup}
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">
@@ -152,7 +166,7 @@ const createEventEditTemplate = (event) => {
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
 
-        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked>
+        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
         <label class="event__favorite-btn" for="event-favorite-1">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -178,7 +192,7 @@ const createEventEditTemplate = (event) => {
         <section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
           <p class="event__destination-description">
-            ${description}
+            ${city.description}
           </p>
 
           <div class="event__photos-container">
@@ -193,17 +207,113 @@ const createEventEditTemplate = (event) => {
   );
 };
 
-export default class EventEdit extends AbstractComponent {
-  constructor(event) {
+export default class PointEdit extends AbstractSmartComponent {
+  constructor(point) {
     super();
-    this._event = event;
+    this._point = point;
+    this._subscribeOnEvents();
+    this._flatpikrDayStart = null;
+    this._flatpikrDayEnd = null;
+
+    this._applayFlatpikr();
   }
 
   getTemplate() {
-    return createEventEditTemplate(this._event);
+    return createEventEditTemplate(this._point);
   }
 
   setSubmitHandler(handler) {
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
+  }
+
+  setFavoriteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__favorite-checkbox`)
+      .addEventListener(`click`, handler);
+  }
+
+  _applayFlatpikr() {
+    if (this._flatpikrDayStart) {
+      this._flatpikrDayStart.destroy();
+      this._flatpikrDayStart = null;
+    }
+    if (this._flatpikrDayEnd) {
+      this._flatpikrDayEnd.destroy();
+      this._flatpikrDayEnd = null;
+    }
+
+    const dateStartElement = this.getElement().querySelector(`#event-start-time-1`);
+    const dateEndElement = this.getElement().querySelector(`#event-end-time-1`);
+    this._flatpikrDayStart = flatpikr(dateStartElement, {
+      altInput: true,
+      enableTime: true,
+      dateFormat: `Y-m-d H:i`,
+      altFormat: `d/m/y H:i`,
+      allowInput: true,
+      defaultDate: this._point.dateStart,
+    });
+
+    this._flatpikrDayEnd = flatpikr(dateEndElement, {
+      altInput: true,
+      enableTime: true,
+      dateFormat: `Y-m-d H:i`,
+      altFormat: `d/m/y H:i`,
+      allowInput: true,
+      defaultDate: this._point.dateStart,
+    });
+  }
+
+  _subscribeOnEvents() {
+    const element = this.getElement();
+
+    element.querySelector(`.event__type-list`).addEventListener(`click`, (evt) => {
+      if (!evt.target.classList.contains(`event__type-input`)) {
+        return;
+      }
+
+      const type = evt.target.value;
+
+      if (this._point.type.name === type) {
+        return;
+      }
+
+      this._point.type = eventTypes.find((eventType) => {
+        return eventType.name === type;
+      });
+
+      this.rerender();
+    });
+
+    element.querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
+      const city = evt.target.value;
+
+      if (city === ``) {
+        return;
+      }
+
+      if (this._point.city.place === city) {
+        return;
+      }
+
+      const destination = Destinations.find((it) => {
+        return it.place === city;
+      });
+
+      if (!destination) {
+        return;
+      }
+
+      this._point.city = destination;
+      this.rerender();
+    });
+
+  }
+
+  reset() {
+    this.rerender();
+  }
+
+  recoveryListeners() {
+    this._subscribeOnEvents();
+    this._applayFlatpikr();
   }
 }

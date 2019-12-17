@@ -42,9 +42,4 @@ export const MONTH_NAMES = [
   `Dec`,
 ];
 
-export const CITIES_NAME = [
-  `Geneva`,
-  `Chamonix`,
-  `Amsterdam`,
-];
 
