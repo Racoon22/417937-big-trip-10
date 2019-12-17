@@ -3,10 +3,10 @@ import TripInfo from "../components/trip-info";
 import Sort, {SORT_TYPES} from "../components/sort";
 import TripDays from "../components/trip-days";
 import NoEvent from "../components/no-events";
-import {castDateKebabFormat} from "../utils/common";
-import {render, RenderPosition} from "../utils/render";
 import TripDayInfo from "../components/trip-day-info";
 import PointController from "./point";
+import {render, RenderPosition} from "../utils/render";
+import {castDateKebabFormat} from "../utils/common";
 
 const renderTripDay = (daysElement, events, onDataChange, onViewChange, date = null) => {
   const tripDay = new TripDay();
