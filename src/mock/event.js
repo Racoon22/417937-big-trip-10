@@ -133,6 +133,7 @@ const generateEvent = () => {
   dates.sort((a, b) => a.getTime() - b.getTime());
   const pointType = getRandomArrayItem(eventTypes);
   return {
+    id: String(new Date() + Math.random()),
     type: pointType,
     title: `random title`,
     city: getRandomArrayItem(Destinations),
