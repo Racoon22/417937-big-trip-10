@@ -10,7 +10,6 @@ const getFuturePoints = (points, date) => {
 };
 
 export const getPointByFilter = (points, filterType) => {
-  console.log(filterType);
   const nowDate = new Date();
   switch (filterType) {
     case FilterType.EVERYTHING :
@@ -18,6 +17,8 @@ export const getPointByFilter = (points, filterType) => {
     case FilterType.PAST :
       return getPastPoints(points, nowDate);
     case FilterType.FUTURE :
-      return getFuturePoints(points, nowDate)
+      return getFuturePoints(points, nowDate);
   }
+
+  return points;
 };

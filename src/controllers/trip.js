@@ -67,18 +67,9 @@ export default class TripController {
     this._pointsModel.setFilterChangeHandler(this._onFilterChange);
   }
 
-  render() {
+  _renderPoints() {
     this._points = this._pointsModel.getPoints();
-    console.log(this._points);
     if (this._points.length > 0) {
-      this._tripInfo = new TripInfo(this._points);
-      const tripInfo = document.querySelector(`.trip-main__trip-info`);
-      render(tripInfo, this._tripInfo, RenderPosition.AFTERBEGIN);
-
-      const totalElement = tripInfo.querySelector(`.trip-info__cost-value`);
-      const totalCost = this._points.reduce((reducer, event) => reducer + event.price, 0);
-      totalElement.textContent = totalCost.toString();
-
       render(this._container, this._sort, RenderPosition.BEFOREBEGIN);
       render(this._container, this._tripDays, RenderPosition.BEFOREBEGIN);
 
@@ -117,6 +108,22 @@ export default class TripController {
     }
   }
 
+  _renderInfo() {
+    const points = this._pointsModel.getPointsAll();
+    this._tripInfo = new TripInfo(points);
+    const tripInfo = document.querySelector(`.trip-main__trip-info`);
+    render(tripInfo, this._tripInfo, RenderPosition.AFTERBEGIN);
+
+    const totalElement = tripInfo.querySelector(`.trip-info__cost-value`);
+    const totalCost = points.reduce((reducer, event) => reducer + event.price, 0);
+    totalElement.textContent = totalCost.toString();
+  }
+
+  render() {
+    this._renderInfo();
+    this._renderPoints();
+  }
+
   _onDataChange(pointController, oldData, newData) {
     const index = this._points.findIndex((it) => it === oldData);
 
@@ -136,11 +143,12 @@ export default class TripController {
 
   _onFilterChange() {
     this._removePoints();
-    this.render();
+    this._renderPoints();
   }
 
   _removePoints() {
-
+    const tripDaysList = this._tripDays.getElement();
+    tripDaysList.innerHTML = ``;
     this._pointControllers.forEach((pointController) => pointController.destroy());
   }
 

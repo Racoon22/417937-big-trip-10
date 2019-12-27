@@ -10,7 +10,7 @@ export default class Points {
   }
 
   setPoints(points) {
-    this._points = points
+    this._points = points;
   }
 
   getPointsAll() {
@@ -18,12 +18,10 @@ export default class Points {
   }
 
   getPoints() {
-    console.log(this._activeFilterType);
     return getPointByFilter(this._points, this._activeFilterType);
   }
 
   setFilter(filterType) {
-    console.log(filterType);
     this._activeFilterType = filterType;
     this._filterChangeHandlers.forEach((handler) => handler());
   }
