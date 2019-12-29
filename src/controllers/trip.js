@@ -6,7 +6,7 @@ import NoEvent from "../components/no-events";
 import {castDateKebabFormat} from "../utils/common";
 import {render, RenderPosition} from "../utils/render";
 import TripDayInfo from "../components/trip-day-info";
-import PointController from "./point";
+import PointController, {Mode} from "./point";
 
 const renderTripDay = (daysElement, events, onDataChange, onViewChange, date = null) => {
   const tripDay = new TripDay();
@@ -18,7 +18,7 @@ const renderTripDay = (daysElement, events, onDataChange, onViewChange, date = n
 
   const points = events.map((point) => {
     const pointController = new PointController(eventListElement, onDataChange, onViewChange);
-    pointController.render(point);
+    pointController.render(point, Mode.DEFAULT);
     return pointController;
   });
   render(daysElement, tripDay, RenderPosition.BEFOREBEGIN);

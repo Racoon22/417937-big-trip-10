@@ -207,6 +207,19 @@ const createEventEditTemplate = (event) => {
   );
 };
 
+const parseFormData = (formData) => {
+  const type = formData.get(`event-type`);
+  return {
+    type: eventTypes.find((eventType) => eventType.name === type),
+    city: Destinations.find((destination) => destination.place === formData.get(`event-destination`)),
+    dateStart: formData.get(`event-start-time`),
+    dateEnd: formData.get(`event-end-time`),
+    isFavorite: formData.get(`event-favorite`),
+    price: formData.get(`event-price`),
+    offers: []
+  }
+};
+
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point) {
     super();
@@ -222,8 +235,23 @@ export default class PointEdit extends AbstractSmartComponent {
     return createEventEditTemplate(this._point);
   }
 
+  getData() {
+    const form = this.getElement().querySelector(`.event--edit`);
+    const formData = new FormData(form);
+
+    return parseFormData(formData);
+  }
+
   setSubmitHandler(handler) {
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
+  }
+
+  setCloseButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
+  }
+
+  setDeleteButtonClickHandler(handler) {
+
   }
 
   setFavoriteButtonClickHandler(handler) {
