@@ -229,6 +229,10 @@ export default class PointEdit extends AbstractSmartComponent {
     this._flatpikrDayEnd = null;
 
     this._applayFlatpikr();
+
+    this._closeButtonClickHandler = null;
+    this._deleteButtonClickHandler = null;
+    this._submitHandler = null;
   }
 
   getTemplate() {
@@ -238,25 +242,44 @@ export default class PointEdit extends AbstractSmartComponent {
   getData() {
     const form = this.getElement().querySelector(`.event--edit`);
     const formData = new FormData(form);
-
     return parseFormData(formData);
   }
 
   setSubmitHandler(handler) {
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
+    this.getElement().querySelector(`form`).addEventListener(`submit`, handler);
+    this._submitHandler = handler;
   }
+
 
   setCloseButtonClickHandler(handler) {
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
+
+    this._closeButtonClickHandler = handler;
   }
 
   setDeleteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, handler);
 
+    this._deleteButtonClickHandler = handler;
   }
 
   setFavoriteButtonClickHandler(handler) {
     this.getElement().querySelector(`.event__favorite-checkbox`)
       .addEventListener(`click`, handler);
+  }
+
+  removeElement() {
+    if (this._flatpikrDayStart) {
+      this._flatpikrDayStart.destroy();
+      this._flatpikrDayStart = null;
+    }
+
+    if (this._flatpikrDayEnd) {
+      this._flatpikrDayEnd.destroy();
+      this._flatpikrDayEnd = null;
+    }
+
+    super.removeElement();
   }
 
   _applayFlatpikr() {
@@ -342,6 +365,9 @@ export default class PointEdit extends AbstractSmartComponent {
 
   recoveryListeners() {
     this._subscribeOnEvents();
+    this.setCloseButtonClickHandler(this._closeButtonClickHandler);
+    this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+    this.setSubmitHandler(this._submitHandler);
     this._applayFlatpikr();
   }
 }

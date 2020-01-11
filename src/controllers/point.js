@@ -53,14 +53,15 @@ export default class PointController {
 
     this._pointEditComponent.setCloseButtonClickHandler(() => {
       this._replaceEditToPoint();
-      // document.removeEventListener(`keydown`, this._onEscPressDown);
     });
 
     this._pointEditComponent.setSubmitHandler((evt) => {
+      debugger
       evt.preventDefault();
       const data = this._pointEditComponent.getData();
       this._onDataChange(this, point, data);
     });
+
     this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, point, null));
 
     switch (mode) {
@@ -84,14 +85,17 @@ export default class PointController {
   }
 
   _replaceEditToPoint() {
-    console.log(`EditToPoint`);
     this._pointEditComponent.reset();
+
+    document.removeEventListener(`keydown`, this._onEscPressDown);
+
     replace(this._pointComponent, this._pointEditComponent);
     this._mode = Mode.DEFAULT;
   }
 
   _replacePointToEdit() {
     this._onViewChange();
+
     replace(this._pointEditComponent, this._pointComponent);
     this._mode = Mode.EDIT;
   }
