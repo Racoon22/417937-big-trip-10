@@ -73,15 +73,17 @@ export default class TripController {
       return;
     }
 
-    const tripDaysList = this._tripDays.getElement();
-    this._creatingPoint = new PointController(tripDaysList, this._onDataChange, this._onViewChange);
-    this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING)
+    this._creatingPoint = new PointController(this._container, this._onDataChange, this._onViewChange);
+    this._updatePoints();
   }
 
   _renderPoints() {
     this._points = this._pointsModel.getPoints();
     if (this._points.length > 0) {
       render(this._container, this._sort, RenderPosition.BEFOREBEGIN);
+      if (this._creatingPoint) {
+        this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+      }
       render(this._container, this._tripDays, RenderPosition.BEFOREBEGIN);
 
       const tripDaysList = this._tripDays.getElement();
@@ -136,42 +138,25 @@ export default class TripController {
   }
 
   _onDataChange(pointController, oldData, newData) {
-    if (newData === null) {
-      this._pointsModel.removePoint(oldData.id);
-      this._updatePoints();
-    } else {
-      const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
-
-      if (isSuccess) {
+    if (oldData === EmptyPoint) {
+      this._creatingPoint = null;
+      if (newData === null) {
+        pointController.destroy();
+        this._updatePoints();
+      } else {
+        this._pointsModel.addPoint(newData);
         pointController.render(newData, PointControllerMode.DEFAULT);
       }
-    }
-  }
-
-  _onDataChangeTask(taskController, oldData, newData) {
-    if (oldData === EmptyTask) {
-      this._creatingTask = null;
-      if (newData === null) {
-        taskController.destroy();
-        this._updateTasks(this._showingTasksCount);
-      } else {
-        this._tasksModel.addTask(newData);
-        taskController.render(newData, TaskControllerMode.DEFAULT);
-
-        const destroyedTask = this._showedTaskControllers.pop();
-        destroyedTask.destroy();
-
-        this._showedTaskControllers = [].concat(taskController, this._showedTaskControllers);
-        this._showingTasksCount = this._showedTaskControllers.length;
-      }
-    } else if (newData === null) {
-      this._tasksModel.removeTask(oldData.id);
-      this._updateTasks(this._showingTasksCount);
     } else {
-      const isSuccess = this._tasksModel.updateTask(oldData.id, newData);
+      if (newData === null) {
+        this._pointsModel.removePoint(oldData.id);
+        this._updatePoints();
+      } else {
+        const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
 
-      if (isSuccess) {
-        taskController.render(newData, TaskControllerMode.DEFAULT);
+        if (isSuccess) {
+          pointController.render(newData, PointControllerMode.DEFAULT);
+        }
       }
     }
   }

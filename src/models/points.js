@@ -28,7 +28,6 @@ export default class Points {
   }
 
   updatePoint(id, point) {
-    console.log(point);
     const index = this._points.findIndex((it) => it.id === id);
 
     if (index === -1) {
@@ -58,6 +57,10 @@ export default class Points {
 
     this._callHandlers(this._dataChangeHandlers);
     return true;
+  }
+
+  setDataChangeHandler(handler) {
+    this._dataChangeHandlers.push(handler);
   }
 
   _callHandlers(handlers) {

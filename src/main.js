@@ -12,6 +12,11 @@ pointsModel.setPoints(points);
 const tripControls = document.querySelector(`.trip-main__trip-controls`);
 render(tripControls, new Menu(), RenderPosition.BEFOREBEGIN);
 
+document.querySelector(`.trip-main__event-add-btn`)
+  .addEventListener(`click`, () => {
+    tripController.createPoint();
+  });
+
 const filterController = new FilterController(tripControls, pointsModel);
 filterController.render();
 

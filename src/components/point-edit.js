@@ -4,12 +4,25 @@ require(`flatpickr/dist/flatpickr.min.css`);
 import flatpikr from "flatpickr";
 import {OFFERS} from "../const";
 import AbstractSmartComponent from "./abstract-smart-component";
-import {Destinations, eventTypes} from "../mock/event";
+import {Destinations, eventTypes, defaultEventType} from "../mock/event";
+import {Mode} from "../controllers/point";
 
 const generateImagesMarkup = (images) => {
   return images.map((image) => {
     return (
       `<img class="event__photo" src="${image}" alt="Event photo">`
+    );
+  }).join(`\n`);
+};
+
+const generateTypesMarkup = (types, acceptedType) => {
+  return types.map((type) => {
+    const isChecked = type.name === acceptedType.name;
+    return (
+      `<div class="event__type-item">
+        <input id="event-type-${type.name}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.name.toLowerCase()}" ${isChecked ? `checked` : ``}>
+        <label class="event__type-label  event__type-label--${type.name}" for="event-type-${type.name}">${type.name}</label>
+      </div>`
     );
   }).join(`\n`);
 };
@@ -20,8 +33,8 @@ const generateOffersMarkup = (offers, acceptedOffers) => {
     const isChecked = acceptedOffers.some((acceptedOffer) => acceptedOffer.type === type);
     return (
       `<div class="event__offer-selector">
-       <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-1" type="checkbox" name="event-offer-${type}" ${isChecked ? `checked` : ``}>
-       <label class="event__offer-label" for="event-offer-${type}-1">
+       <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}" type="checkbox" value="${type}" name="event-offer" ${isChecked ? `checked` : ``}>
+       <label class="event__offer-label" for="event-offer-${type}">
          <span class="event__offer-title">${title}</span>
           &plus;
           &euro;&nbsp;<span class="event__offer-price">${price}</span>
@@ -56,22 +69,29 @@ const generateDestinationsMarkup = (type, city) => {
   );
 };
 
-const createEventEditTemplate = (event) => {
+const createEventEditTemplate = (event, mode) => {
   const {type, city, dateStart, dateEnd, price, offers, isFavorite} = event;
   const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
   const formattedDateEnd = moment(dateEnd);
 
-  const imagesMarkup = generateImagesMarkup(city.images);
-  const availableOffers = OFFERS.filter((offer) => {
-    return type.offers.indexOf(offer.type) !== -1;
-  });
+  const imagesMarkup = city.images && city.images.length > 0 ? generateImagesMarkup(city.images) : ``;
+  let availableOffers = [];
+  if (type.offers) {
+    availableOffers = OFFERS.filter((offer) => {
+      return type.offers.indexOf(offer.type) !== -1;
+    });
+  }
+
   const offersMarkup = generateOffersMarkup(availableOffers, offers);
 
   const destinationMarkup = generateDestinationsMarkup(type, city);
 
+  const transferTypes = generateTypesMarkup(eventTypes.filter((type) => type.category === `transfer`), type);
+  const activityTypes = generateTypesMarkup(eventTypes.filter((type) => type.category === `activity`), type);
+
   return (
     `<li class="trip-events__item">
-       <form class="event  event--edit" action="#" method="post">
+      <form class="${mode === Mode.ADDING ? `trip-events__item` : ``} event  event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -83,60 +103,12 @@ const createEventEditTemplate = (event) => {
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Transfer</legend>
-
-              <div class="event__type-item">
-                <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-                <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-                <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-                <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-                <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-transport-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="transport">
-                <label class="event__type-label  event__type-label--transport" for="event-type-transport-1">Transport</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-                <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked>
-                <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-              </div>
+              ${transferTypes}
             </fieldset>
 
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Activity</legend>
-
-              <div class="event__type-item">
-                <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-                <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-                <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-                <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-              </div>
+              ${activityTypes}
             </fieldset>
           </div>
         </div>
@@ -203,12 +175,17 @@ const createEventEditTemplate = (event) => {
         </section>
       </section>
     </form>
-   </li>`
+     </li>`
   );
 };
 
 const parseFormData = (formData) => {
   const type = formData.get(`event-type`);
+  const offers = OFFERS.filter((offer) => {
+    return formData.getAll(`event-offer`).some((acceptedOffer) => {
+      return offer.type === acceptedOffer;
+    })
+  });
   return {
     type: eventTypes.find((eventType) => eventType.name === type),
     city: Destinations.find((destination) => destination.place === formData.get(`event-destination`)),
@@ -216,14 +193,15 @@ const parseFormData = (formData) => {
     dateEnd: formData.get(`event-end-time`),
     isFavorite: formData.get(`event-favorite`),
     price: formData.get(`event-price`),
-    offers: []
+    offers: offers,
   }
 };
 
 export default class PointEdit extends AbstractSmartComponent {
-  constructor(point) {
+  constructor(point, mode = Mode.DEFAULT) {
     super();
     this._point = point;
+    this._mode = mode;
     this._subscribeOnEvents();
     this._flatpikrDayStart = null;
     this._flatpikrDayEnd = null;
@@ -236,7 +214,7 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createEventEditTemplate(this._point);
+    return createEventEditTemplate(this._point, this._mode);
   }
 
   getData() {

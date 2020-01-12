@@ -119,6 +119,8 @@ export const eventTypes =
   ]
 ;
 
+export const defaultEventType = eventTypes.find(type => type.name = `plane`);
+
 const generateOffers = (offers) => {
   return OFFERS.filter((offer) => {
     const chosenOffers = offers

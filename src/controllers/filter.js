@@ -12,8 +12,6 @@ export default class Filter {
 
     // this._onDataChange = this._onDataChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
-    //
-    // this._tasksModel.setDataChangeHandler(this._onDataChange);
   }
 
   render() {

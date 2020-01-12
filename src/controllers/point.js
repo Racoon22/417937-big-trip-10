@@ -1,6 +1,7 @@
 import PointComponent from "../components/point";
 import PointEditComponent from "../components/point-edit";
 import {remove, render, RenderPosition, replace} from "../utils/render";
+import {defaultEventType} from "../mock/event";
 
 export const Mode = {
   ADDING: `adding`,
@@ -10,7 +11,7 @@ export const Mode = {
 
 export const EmptyPoint = {
   id: String(new Date() + Math.random()),
-  type: {},
+  type: defaultEventType,
   title: `random title`,
   city: {},
   isFavorite: false,
@@ -56,7 +57,6 @@ export default class PointController {
     });
 
     this._pointEditComponent.setSubmitHandler((evt) => {
-      debugger
       evt.preventDefault();
       const data = this._pointEditComponent.getData();
       this._onDataChange(this, point, data);
@@ -69,6 +69,7 @@ export default class PointController {
         if (oldPointComponent && oldPointEditComponent) {
           replace(this._pointComponent, oldPointComponent);
           replace(this._pointEditComponent, oldPointEditComponent);
+          this._replaceEditToPoint()
         } else {
           render(this._container, this._pointComponent, RenderPosition.BEFOREBEGIN);
         }
