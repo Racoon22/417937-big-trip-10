@@ -4,7 +4,7 @@ require(`flatpickr/dist/flatpickr.min.css`);
 import flatpikr from "flatpickr";
 import {OFFERS} from "../const";
 import AbstractSmartComponent from "./abstract-smart-component";
-import {Destinations, eventTypes, defaultEventType} from "../mock/event";
+import {Destinations, eventTypes} from "../mock/event";
 import {Mode} from "../controllers/point";
 
 const generateImagesMarkup = (images) => {
@@ -61,7 +61,7 @@ const generateDestinationsMarkup = (type, city) => {
        <label class="event__label  event__type-output" for="event-destination-1">
           ${placeholder}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city.place}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city.place ? city.place : ``}" list="destination-list-1">
         <datalist id="destination-list-1">
             ${citiesDatalistMarkup}
         </datalist>
@@ -69,12 +69,51 @@ const generateDestinationsMarkup = (type, city) => {
   );
 };
 
-const createEventEditTemplate = (event, mode) => {
-  const {type, city, dateStart, dateEnd, price, offers, isFavorite} = event;
+const generateDetailsMarkup = (city) => {
+  const imagesMarkup = city.images && city.images.length > 0 ? generateImagesMarkup(city.images) : ``;
+  if (!imagesMarkup && !city.description) {
+    return ``;
+  }
+  return (
+    `<section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">
+            ${city.description}
+          </p>
+
+          <div class="event__photos-container">
+            <div class="event__photos-tape">
+              ${imagesMarkup}
+            </div>
+          </div>
+        </section>`
+  );
+};
+
+const generateControlsMarkup = (isFavorite) => {
+  return (
+    `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
+      <label class="event__favorite-btn" for="event-favorite-1">
+        <span class="visually-hidden">Add to favorite</span>
+        <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+          <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+        </svg>
+      </label>
+
+      <button class="event__rollup-btn" type="button">
+        <span class="visually-hidden">Open event</span>
+      </button>`
+  );
+};
+
+const createFormMarkup = (event, mode, options = {}) => {
+  const {type, city, isFavorite} = event;
+  const {price, dateStart, dateEnd, offers} = options;
+
   const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
+
   const formattedDateEnd = moment(dateEnd);
 
-  const imagesMarkup = city.images && city.images.length > 0 ? generateImagesMarkup(city.images) : ``;
   let availableOffers = [];
   if (type.offers) {
     availableOffers = OFFERS.filter((offer) => {
@@ -83,15 +122,17 @@ const createEventEditTemplate = (event, mode) => {
   }
 
   const offersMarkup = generateOffersMarkup(availableOffers, offers);
-
   const destinationMarkup = generateDestinationsMarkup(type, city);
+  const detailsMarkup = generateDetailsMarkup(city);
 
-  const transferTypes = generateTypesMarkup(eventTypes.filter((type) => type.category === `transfer`), type);
-  const activityTypes = generateTypesMarkup(eventTypes.filter((type) => type.category === `activity`), type);
+  const transferTypes = generateTypesMarkup(eventTypes.filter((eventType) => eventType.category === `transfer`), type);
+  const activityTypes = generateTypesMarkup(eventTypes.filter((eventType) => eventType.category === `activity`), type);
+
+  const deleteButton = mode === Mode.ADDING ? `Cancel` : `Delete`;
+  const controlsMarkup = mode === Mode.ADDING ? `` : generateControlsMarkup(isFavorite);
 
   return (
-    `<li class="trip-events__item">
-      <form class="${mode === Mode.ADDING ? `trip-events__item` : ``} event  event--edit" action="#" method="post">
+    `<form class="${mode === Mode.ADDING ? `trip-events__item` : ``} event  event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -116,15 +157,15 @@ const createEventEditTemplate = (event, mode) => {
         ${destinationMarkup}
 
         <div class="event__field-group  event__field-group--time">
-          <label class="visually-hidden" for="event-start-time-1">
+          <label class="visually-hidden" for="event-start-time">
             From
           </label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattedDateStart}">
+          <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${formattedDateStart}">
           &mdash;
-          <label class="visually-hidden" for="event-end-time-1">
+          <label class="visually-hidden" for="event-end-time">
             To
           </label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formattedDateEnd}">
+          <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${formattedDateEnd}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -136,21 +177,10 @@ const createEventEditTemplate = (event, mode) => {
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
+        <button class="event__reset-btn" type="reset">${deleteButton}</button>
 
-        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
-        <label class="event__favorite-btn" for="event-favorite-1">
-          <span class="visually-hidden">Add to favorite</span>
-          <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
-            <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
-          </svg>
-        </label>
-
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+        ${controlsMarkup}
       </header>
-
       <section class="event__details">
 
         <section class="event__section  event__section--offers">
@@ -161,22 +191,15 @@ const createEventEditTemplate = (event, mode) => {
           </div>
         </section>
 
-        <section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">
-            ${city.description}
-          </p>
-
-          <div class="event__photos-container">
-            <div class="event__photos-tape">
-              ${imagesMarkup}
-            </div>
-          </div>
-        </section>
+        ${detailsMarkup}
       </section>
-    </form>
-     </li>`
+    </form>`
   );
+};
+
+const createEventEditTemplate = (event, mode, options = {}) => {
+  const formMarkup = createFormMarkup(event, mode, options);
+  return mode === Mode.DEFAULT ? `<li class="trip-events__item">${formMarkup}</li>` : formMarkup;
 };
 
 const parseFormData = (formData) => {
@@ -184,55 +207,75 @@ const parseFormData = (formData) => {
   const offers = OFFERS.filter((offer) => {
     return formData.getAll(`event-offer`).some((acceptedOffer) => {
       return offer.type === acceptedOffer;
-    })
+    });
   });
   return {
     type: eventTypes.find((eventType) => eventType.name === type),
     city: Destinations.find((destination) => destination.place === formData.get(`event-destination`)),
-    dateStart: formData.get(`event-start-time`),
-    dateEnd: formData.get(`event-end-time`),
+    dateStart: new Date(formData.get(`event-start-time`)),
+    dateEnd: new Date(formData.get(`event-end-time`)),
     isFavorite: formData.get(`event-favorite`),
     price: formData.get(`event-price`),
-    offers: offers,
-  }
+    offers
+  };
 };
 
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point, mode = Mode.DEFAULT) {
     super();
-    this._point = point;
     this._mode = mode;
+    this._point = point;
+    this._price = point.price;
+    this._dateStart = point.dateStart;
+    this._dateEnd = point.dateEnd;
+    this._offers = point.offers;
+
     this._subscribeOnEvents();
     this._flatpikrDayStart = null;
     this._flatpikrDayEnd = null;
 
-    this._applayFlatpikr();
+    this._aplayFlatpikr();
 
     this._closeButtonClickHandler = null;
     this._deleteButtonClickHandler = null;
     this._submitHandler = null;
+
   }
 
   getTemplate() {
-    return createEventEditTemplate(this._point, this._mode);
+    return createEventEditTemplate(this._point, this._mode, {
+      price: this._price,
+      dateStart: this._dateStart,
+      dateEnd: this._dateEnd,
+      offers: this._offers,
+    });
   }
 
   getData() {
-    const form = this.getElement().querySelector(`.event--edit`);
+    const form = this._mode === Mode.ADDING ? this.getElement() : this.getElement().querySelector(`.event--edit`);
     const formData = new FormData(form);
     return parseFormData(formData);
   }
 
   setSubmitHandler(handler) {
-    this.getElement().querySelector(`form`).addEventListener(`submit`, handler);
+    const formElement = this.getElement();
+
+    if (this._mode === Mode.ADDING) {
+      formElement.addEventListener(`submit`, handler);
+    } else {
+      formElement.querySelector(`form`).addEventListener(`submit`, handler);
+    }
+
     this._submitHandler = handler;
   }
 
 
   setCloseButtonClickHandler(handler) {
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
+    if (this._mode === Mode.DEFAULT) {
+      this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
 
-    this._closeButtonClickHandler = handler;
+      this._closeButtonClickHandler = handler;
+    }
   }
 
   setDeleteButtonClickHandler(handler) {
@@ -242,8 +285,10 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   setFavoriteButtonClickHandler(handler) {
-    this.getElement().querySelector(`.event__favorite-checkbox`)
-      .addEventListener(`click`, handler);
+    if (this._mode === Mode.DEFAULT) {
+      this.getElement().querySelector(`.event__favorite-checkbox`)
+        .addEventListener(`click`, handler);
+    }
   }
 
   removeElement() {
@@ -260,7 +305,7 @@ export default class PointEdit extends AbstractSmartComponent {
     super.removeElement();
   }
 
-  _applayFlatpikr() {
+  _aplayFlatpikr() {
     if (this._flatpikrDayStart) {
       this._flatpikrDayStart.destroy();
       this._flatpikrDayStart = null;
@@ -270,15 +315,15 @@ export default class PointEdit extends AbstractSmartComponent {
       this._flatpikrDayEnd = null;
     }
 
-    const dateStartElement = this.getElement().querySelector(`#event-start-time-1`);
-    const dateEndElement = this.getElement().querySelector(`#event-end-time-1`);
+    const dateStartElement = this.getElement().querySelector(`#event-start-time`);
+    const dateEndElement = this.getElement().querySelector(`#event-end-time`);
     this._flatpikrDayStart = flatpikr(dateStartElement, {
       altInput: true,
       enableTime: true,
       dateFormat: `Y-m-d H:i`,
       altFormat: `d/m/y H:i`,
       allowInput: true,
-      defaultDate: this._point.dateStart,
+      defaultDate: this._dateStart,
     });
 
     this._flatpikrDayEnd = flatpikr(dateEndElement, {
@@ -287,7 +332,7 @@ export default class PointEdit extends AbstractSmartComponent {
       dateFormat: `Y-m-d H:i`,
       altFormat: `d/m/y H:i`,
       allowInput: true,
-      defaultDate: this._point.dateStart,
+      defaultDate: this._dateEnd,
     });
   }
 
@@ -309,6 +354,23 @@ export default class PointEdit extends AbstractSmartComponent {
         return eventType.name === type;
       });
 
+      this._offers = [];
+
+      this.rerender();
+    });
+
+    element.querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
+      this._price = evt.target.value;
+      this.rerender();
+    });
+
+    element.querySelector(`#event-start-time`).addEventListener(`change`, (evt) => {
+      this._dateStart = new Date(evt.target.value);
+      this.rerender();
+    });
+
+    element.querySelector(`#event-end-time`).addEventListener(`change`, (evt) => {
+      this._dateEnd = new Date(evt.target.value);
       this.rerender();
     });
 
@@ -334,7 +396,6 @@ export default class PointEdit extends AbstractSmartComponent {
       this._point.city = destination;
       this.rerender();
     });
-
   }
 
   reset() {
@@ -346,6 +407,6 @@ export default class PointEdit extends AbstractSmartComponent {
     this.setCloseButtonClickHandler(this._closeButtonClickHandler);
     this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
     this.setSubmitHandler(this._submitHandler);
-    this._applayFlatpikr();
+    this._aplayFlatpikr();
   }
 }

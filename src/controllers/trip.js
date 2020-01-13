@@ -115,6 +115,7 @@ export default class TripController {
         }
       });
 
+      this._points.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
       this._pointControllers = renderDays(tripDaysList, this._points, this._onDataChange, this._onViewChange);
     } else {
       render(this._container, this._noEvent, RenderPosition.BEFOREBEGIN);
@@ -145,7 +146,7 @@ export default class TripController {
         this._updatePoints();
       } else {
         this._pointsModel.addPoint(newData);
-        pointController.render(newData, PointControllerMode.DEFAULT);
+        this._updatePoints();
       }
     } else {
       if (newData === null) {
@@ -165,6 +166,10 @@ export default class TripController {
     this._pointControllers.forEach((it) => {
       it.setDefaultView();
     });
+    if (this._creatingPoint) {
+      this._creatingPoint.destroy();
+      this._creatingPoint = null;
+    }
   }
 
   _onFilterChange() {
@@ -181,7 +186,7 @@ export default class TripController {
   }
 
   _createTripDays() {
-    this._tripDays = new TripDays;
+    this._tripDays = new TripDays();
   }
 
   _removeTripDays() {

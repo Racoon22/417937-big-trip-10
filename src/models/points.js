@@ -59,6 +59,10 @@ export default class Points {
     return true;
   }
 
+  addPoint(task) {
+    this._points = [].concat(task, this._points);
+  }
+
   setDataChangeHandler(handler) {
     this._dataChangeHandlers.push(handler);
   }

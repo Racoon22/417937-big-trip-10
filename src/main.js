@@ -5,8 +5,8 @@ import FilterController from "./controllers/filter"
 import TripController from "./controllers/trip";
 import PointsModel from "./models/points";
 
-const TASK_COUNT = 2;
-let points = generateEvents(TASK_COUNT);
+const POINT_COUNT = 2;
+let points = generateEvents(POINT_COUNT);
 const pointsModel = new PointsModel();
 pointsModel.setPoints(points);
 const tripControls = document.querySelector(`.trip-main__trip-controls`);

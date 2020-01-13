@@ -39,8 +39,6 @@ export const Destinations = [
   },
   {
     place: `Amsterdam`,
-    description: generateDescription(),
-    images: generatePhotos(getRandomInteger(PHOTO_MIN_COUNT, PHOTO_MAX_COUNT))
   },
 ];
 
@@ -119,7 +117,7 @@ export const eventTypes =
   ]
 ;
 
-export const defaultEventType = eventTypes.find(type => type.name = `plane`);
+export const defaultEventType = eventTypes.find((type) => type.name === `flight`);
 
 const generateOffers = (offers) => {
   return OFFERS.filter((offer) => {

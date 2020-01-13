@@ -40,7 +40,7 @@ export default class PointController {
     this._mode = mode;
 
     this._pointComponent = new PointComponent(point);
-    this._pointEditComponent = new PointEditComponent(point);
+    this._pointEditComponent = new PointEditComponent(point, mode);
 
     this._pointComponent.setEditButtonClickHandler(() => {
       this._replacePointToEdit();
@@ -69,7 +69,7 @@ export default class PointController {
         if (oldPointComponent && oldPointEditComponent) {
           replace(this._pointComponent, oldPointComponent);
           replace(this._pointEditComponent, oldPointEditComponent);
-          this._replaceEditToPoint()
+          this._replaceEditToPoint();
         } else {
           render(this._container, this._pointComponent, RenderPosition.BEFOREBEGIN);
         }
@@ -80,7 +80,7 @@ export default class PointController {
           replace(this._pointEditComponent, oldPointEditComponent);
         }
         document.addEventListener(`keydown`, this._onEscPressDown);
-        render(this._container, this._pointEditComponent, RenderPosition.AFTERBEGIN);
+        render(this._container, this._pointEditComponent, RenderPosition.BEFOREBEGIN);
         break;
     }
   }
