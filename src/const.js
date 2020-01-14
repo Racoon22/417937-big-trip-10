@@ -42,4 +42,11 @@ export const MONTH_NAMES = [
   `Dec`,
 ];
 
+export const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`,
+};
+
+
 

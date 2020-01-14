@@ -1,10 +1,24 @@
 import PointComponent from "../components/point";
 import PointEditComponent from "../components/point-edit";
-import {render, RenderPosition, replace} from "../utils/render";
+import {remove, render, RenderPosition, replace} from "../utils/render";
+import {defaultEventType} from "../mock/event";
 
-const Mode = {
+export const Mode = {
+  ADDING: `adding`,
   DEFAULT: `default`,
   EDIT: `edit`,
+};
+
+export const EmptyPoint = {
+  id: String(new Date() + Math.random()),
+  type: defaultEventType,
+  title: `random title`,
+  city: {},
+  isFavorite: false,
+  dateStart: {},
+  dateEnd: {},
+  price: 0,
+  offers: [],
 };
 
 export default class PointController {
@@ -16,14 +30,17 @@ export default class PointController {
     this._mode = Mode.DEFAULT;
     this._pointComponent = null;
     this._pointEditComponent = null;
+
+    this._onEscPressDown = this._onEscPressDown.bind(this);
   }
 
-  render(point) {
+  render(point, mode) {
     const oldPointComponent = this._pointComponent;
     const oldPointEditComponent = this._pointEditComponent;
+    this._mode = mode;
 
     this._pointComponent = new PointComponent(point);
-    this._pointEditComponent = new PointEditComponent(point);
+    this._pointEditComponent = new PointEditComponent(point, mode);
 
     this._pointComponent.setEditButtonClickHandler(() => {
       this._replacePointToEdit();
@@ -35,20 +52,44 @@ export default class PointController {
       document.addEventListener(`keydown`, this._onEscPressDown);
     });
 
-    this._pointEditComponent.setSubmitHandler(() => {
+    this._pointEditComponent.setCloseButtonClickHandler(() => {
       this._replaceEditToPoint();
     });
 
-    if (oldPointComponent && oldPointEditComponent) {
-      replace(this._pointComponent, oldPointComponent);
-      replace(this._pointEditComponent, oldPointEditComponent);
-    } else {
-      render(this._container, this._pointComponent, RenderPosition.BEFOREBEGIN);
+    this._pointEditComponent.setSubmitHandler((evt) => {
+      evt.preventDefault();
+      const data = this._pointEditComponent.getData();
+      this._onDataChange(this, point, data);
+    });
+
+    this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, point, null));
+
+    switch (mode) {
+      case Mode.DEFAULT :
+        if (oldPointComponent && oldPointEditComponent) {
+          replace(this._pointComponent, oldPointComponent);
+          replace(this._pointEditComponent, oldPointEditComponent);
+          this._replaceEditToPoint();
+        } else {
+          render(this._container, this._pointComponent, RenderPosition.BEFOREBEGIN);
+        }
+        break;
+      case Mode.ADDING :
+        if (oldPointComponent && oldPointEditComponent) {
+          replace(this._pointComponent, oldPointComponent);
+          replace(this._pointEditComponent, oldPointEditComponent);
+        }
+        document.addEventListener(`keydown`, this._onEscPressDown);
+        render(this._container, this._pointEditComponent, RenderPosition.BEFOREBEGIN);
+        break;
     }
   }
 
   _replaceEditToPoint() {
     this._pointEditComponent.reset();
+
+    document.removeEventListener(`keydown`, this._onEscPressDown);
+
     replace(this._pointComponent, this._pointEditComponent);
     this._mode = Mode.DEFAULT;
   }
@@ -62,6 +103,9 @@ export default class PointController {
 
   _onEscPressDown(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
+      if (this._mode === Mode.ADDING) {
+        this._onDataChange(this, EmptyPoint, null);
+      }
       this._replaceEditToPoint();
     }
     document.removeEventListener(`keydown`, this._onEscPressDown);
@@ -71,5 +115,11 @@ export default class PointController {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceEditToPoint();
     }
+  }
+
+  destroy() {
+    remove(this._pointComponent);
+    remove(this._pointEditComponent);
+    document.removeEventListener(`keydown`, this._onEscPressDown);
   }
 }

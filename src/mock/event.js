@@ -39,8 +39,6 @@ export const Destinations = [
   },
   {
     place: `Amsterdam`,
-    description: generateDescription(),
-    images: generatePhotos(getRandomInteger(PHOTO_MIN_COUNT, PHOTO_MAX_COUNT))
   },
 ];
 
@@ -119,6 +117,8 @@ export const eventTypes =
   ]
 ;
 
+export const defaultEventType = eventTypes.find((type) => type.name === `flight`);
+
 const generateOffers = (offers) => {
   return OFFERS.filter((offer) => {
     const chosenOffers = offers
@@ -133,6 +133,7 @@ const generateEvent = () => {
   dates.sort((a, b) => a.getTime() - b.getTime());
   const pointType = getRandomArrayItem(eventTypes);
   return {
+    id: String(new Date() + Math.random()),
     type: pointType,
     title: `random title`,
     city: getRandomArrayItem(Destinations),
