@@ -73,18 +73,26 @@ export default class TripController {
       return;
     }
 
-    this._creatingPoint = new PointController(this._container, this._onDataChange, this._onViewChange);
+    this._creatingPoint = new PointController(this._container.getElement(), this._onDataChange, this._onViewChange);
     this._updatePoints();
+  }
+
+  hide() {
+    this._container.hide();
+  }
+
+  show() {
+    this._container.show();
   }
 
   _renderPoints() {
     this._points = this._pointsModel.getPoints();
     if (this._points.length > 0) {
-      render(this._container, this._sort, RenderPosition.BEFOREBEGIN);
+      render(this._container.getElement(), this._sort, RenderPosition.BEFOREBEGIN);
       if (this._creatingPoint) {
         this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
       }
-      render(this._container, this._tripDays, RenderPosition.BEFOREBEGIN);
+      render(this._container.getElement(), this._tripDays, RenderPosition.BEFOREBEGIN);
 
       const tripDaysList = this._tripDays.getElement();
 
@@ -118,7 +126,7 @@ export default class TripController {
       this._points.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
       this._pointControllers = renderDays(tripDaysList, this._points, this._onDataChange, this._onViewChange);
     } else {
-      render(this._container, this._noEvent, RenderPosition.BEFOREBEGIN);
+      render(this._container.getElement(), this._noEvent, RenderPosition.BEFOREBEGIN);
     }
   }
 
@@ -182,7 +190,7 @@ export default class TripController {
   }
 
   _clearContainer() {
-    this._container.innerHTML = ``;
+    this._container.getElement().innerHTML = ``;
   }
 
   _createTripDays() {
