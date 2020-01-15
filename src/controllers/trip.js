@@ -87,7 +87,7 @@ export default class TripController {
 
   _renderPoints() {
     this._points = this._pointsModel.getPoints();
-    if (this._points.length > 0) {
+    if (this._points.length > 0 || this._creatingPoint) {
       render(this._container.getElement(), this._sort, RenderPosition.BEFOREBEGIN);
       if (this._creatingPoint) {
         this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);

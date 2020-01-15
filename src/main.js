@@ -8,7 +8,7 @@ import TripController from "./controllers/trip";
 import PointsModel from "./models/points";
 import NewPointComponent from "./components/new-point";
 
-const POINT_COUNT = 2;
+const POINT_COUNT = 20;
 let points = generateEvents(POINT_COUNT);
 const pointsModel = new PointsModel();
 pointsModel.setPoints(points);
@@ -29,7 +29,7 @@ const tripComponent = new TripComponent();
 render(siteMainElement, tripComponent);
 
 const tripController = new TripController(tripComponent, pointsModel);
-const statisticsComponent = new StatisticsComponent();
+const statisticsComponent = new StatisticsComponent(pointsModel);
 render(siteMainElement, statisticsComponent);
 
 tripController.render();
