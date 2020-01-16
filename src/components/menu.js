@@ -21,12 +21,11 @@ export default class Menu extends AbstractComponent {
   }
 
   setActiveItem(menuItem) {
-    this.getElement().querySelector(`.trip-tabs__btn--active`).classList.remove('trip-tabs__btn--active');
-
+    this.getElement().querySelector(`.trip-tabs__btn--active`).classList.remove(`trip-tabs__btn--active`);
     if (menuItem === MenuItem.STATS) {
-      this.getElement().querySelector(`#stats`).classList.add('trip-tabs__btn--active');
+      this.getElement().querySelector(`#stats`).classList.add(`trip-tabs__btn--active`);
     } else {
-      this.getElement().querySelector(`#points`).classList.add('trip-tabs__btn--active');
+      this.getElement().querySelector(`#points`).classList.add(`trip-tabs__btn--active`);
     }
   }
 
@@ -37,7 +36,6 @@ export default class Menu extends AbstractComponent {
       }
 
       const menuItem = evt.target.id;
-      console.log(menuItem);
 
       handler(menuItem);
     });

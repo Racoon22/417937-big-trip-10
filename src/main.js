@@ -8,7 +8,7 @@ import TripController from "./controllers/trip";
 import PointsModel from "./models/points";
 import NewPointComponent from "./components/new-point";
 
-const POINT_COUNT = 20;
+const POINT_COUNT = 12;
 let points = generateEvents(POINT_COUNT);
 const pointsModel = new PointsModel();
 pointsModel.setPoints(points);
@@ -35,21 +35,23 @@ render(siteMainElement, statisticsComponent);
 tripController.render();
 statisticsComponent.hide();
 
-document.querySelector(`.trip-main__event-add-btn`)
-  .addEventListener(`click`, () => {
-    menuComponent.setActiveItem(MenuItem.POINTS);
-    statisticsComponent.hide();
-    tripController.show();
-    tripController.createPoint();
-  });
+newPointComponent.setOnClickHandler(() => {
+  menuComponent.setActiveItem(MenuItem.POINTS);
+  statisticsComponent.hide();
+  tripController.show();
+  tripController.createPoint();
+});
+
 
 menuComponent.setOnClick((menuItem) => {
   switch (menuItem) {
     case MenuItem.STATS:
+      menuComponent.setActiveItem(MenuItem.STATS);
       tripController.hide();
       statisticsComponent.show();
       break;
     case MenuItem.POINTS:
+      menuComponent.setActiveItem(MenuItem.POINTS);
       statisticsComponent.hide();
       tripController.show();
       break;

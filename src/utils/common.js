@@ -27,10 +27,6 @@ export const castTimeFormat = (date) => {
   return moment(date).format(`HH:mm`);
 };
 
-export const castDateKebabFormat = (date) => {
-  return moment(date).format(`YYYY-MM-DD`);
-};
-
 export const capitalizeFirstLetter = (string) => {
   return string.slice(0, 1).toUpperCase() + string.slice(1);
 };

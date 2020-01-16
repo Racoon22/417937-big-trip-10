@@ -3,7 +3,6 @@ import TripInfo from "../components/trip-info";
 import Sort, {SORT_TYPES} from "../components/sort";
 import TripDays from "../components/trip-days";
 import NoEvent from "../components/no-events";
-import {castDateKebabFormat} from "../utils/common";
 import {render, RenderPosition} from "../utils/render";
 import TripDayInfo from "../components/trip-day-info";
 import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point";
@@ -11,7 +10,7 @@ import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point"
 const renderTripDay = (daysElement, events, onDataChange, onViewChange, date = null) => {
   const tripDay = new TripDay();
   if (date) {
-    const infoContainer = tripDay.getElement().querySelector(`.day__info`);
+    const infoContainer = tripDay.getElement();
     render(infoContainer, new TripDayInfo(date), RenderPosition.AFTERBEGIN);
   }
   const eventListElement = tripDay.getElement().querySelector(`.trip-events__list`);
@@ -29,7 +28,7 @@ const renderDays = (container, events, onDataChange, onViewChange) => {
   const days = {};
   const pointControllers = [];
   events.forEach((event) => {
-    const date = castDateKebabFormat(event.dateStart);
+    const date = event.dateStart.toDateString();
     if (days.hasOwnProperty(date)) {
       days[date].push(event);
     } else {

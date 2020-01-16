@@ -7,7 +7,6 @@ const getUniqItems = (item, index, array) => {
 };
 
 const renderMoneyChart = (moneyCtx, points) => {
-
   const types = points.map((point) => point.type.name).filter(getUniqItems);
   const moneyCountByTypes = types.map((type) => {
     return points.filter((point) => point.type.name === type)
@@ -15,8 +14,6 @@ const renderMoneyChart = (moneyCtx, points) => {
         return acc + point.price;
       }, 0);
   });
-
-  console.log(types);
 
   return new Chart(moneyCtx, {
     plugins: [ChartDataLabels],
@@ -38,26 +35,26 @@ const renderMoneyChart = (moneyCtx, points) => {
       plugins: {
         datalabels: {
           formatter(value) {
-            return '€' + value;
+            return `€` + value;
           },
           font: {
             size: 14
           },
           color: `#000000`,
-          align: `end`,
-          textAlign: `end`
+          anchor: `end`,
+          align: `left`,
         },
       },
       scales: {
         yAxes: [{
-          ticks: {
-            beginAtZero: true,
-            display: true,
-            fontSize: 18,
-          },
           gridLines: {
             display: false,
             drawBorder: false
+          },
+          ticks: {
+            fontColor: `#000000`,
+            fontSize: 14,
+            display: true,
           }
         }],
         xAxes: [{
@@ -93,9 +90,165 @@ const renderMoneyChart = (moneyCtx, points) => {
   });
 };
 
+const renderTransportChart = (transportCtx, points) => {
+  const types = points.map((point) => point.type.name).filter(getUniqItems);
+  const transportCountByTypes = types.map((type) => {
+    return points.filter((point) => point.type.name === type).length;
+  });
+
+  return new Chart(transportCtx, {
+    plugins: [ChartDataLabels],
+    type: `horizontalBar`,
+    data: {
+      labels: types,
+      datasets: [{
+        data: transportCountByTypes,
+        backgroundColor: `#ffffff`,
+        borderColor: `#ffffff`,
+        barPercentage: 0.5,
+        barThickness: 50,
+        maxBarThickness: 50,
+        minBarLength: 2,
+        pointBackgroundColor: `#000000`
+      }]
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          font: {
+            size: 14
+          },
+          color: `#000000`,
+          anchor: `end`,
+          align: `left`,
+        },
+      },
+      scales: {
+        yAxes: [{
+          gridLines: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: {
+            fontColor: `#000000`,
+            fontSize: 14,
+            display: true,
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            beginAtZero: true,
+            display: false
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false
+          }
+        }]
+      },
+      layout: {
+        padding: {
+          top: 10
+        }
+      },
+      tooltips: {
+        enabled: true
+      },
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        position: `left`,
+        text: `TRANSPORT`,
+        fontSize: 16,
+        fontColor: `#000000`,
+      },
+    },
+  });
+};
+
+const renderTimeChart = (transportCtx, points) => {
+  const types = points.map((point) => point.type.name).filter(getUniqItems);
+  const transportCountByTypes = types.map((type) => {
+    return Math.ceil(points.filter((point) => point.type.name === type).reduce((acc, point) => {
+      return acc + (point.dateEnd - point.dateStart);
+    }, 0) / 3600000);
+  });
+
+  return new Chart(transportCtx, {
+    plugins: [ChartDataLabels],
+    type: `horizontalBar`,
+    data: {
+      labels: types,
+      datasets: [{
+        data: transportCountByTypes,
+        backgroundColor: `#ffffff`,
+        borderColor: `#ffffff`,
+        barPercentage: 0.5,
+        barThickness: 50,
+        maxBarThickness: 50,
+        minBarLength: 2,
+        pointBackgroundColor: `#000000`
+      }]
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          font: {
+            size: 14
+          },
+          color: `#000000`,
+          anchor: `end`,
+          align: `left`,
+        },
+      },
+      scales: {
+        yAxes: [{
+          gridLines: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: {
+            fontColor: `#000000`,
+            fontSize: 14,
+            display: true,
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            beginAtZero: true,
+            display: false
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false
+          }
+        }]
+      },
+      layout: {
+        padding: {
+          top: 10
+        }
+      },
+      tooltips: {
+        enabled: true
+      },
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        position: `left`,
+        text: `TIME SPENT`,
+        fontSize: 16,
+        fontColor: `#000000`,
+      },
+    },
+  });
+};
+
 const createStatisticsTemplate = () => {
-
-
   return (
     `<section class="statistics">
       <h2>Trip statistics</h2>
@@ -109,9 +262,10 @@ const createStatisticsTemplate = () => {
       </div>
 
       <div class="statistics__item statistics__item--time-spend">
-        <canvas class="statistics__chart  statistics__chart--time" width="900"></canvas>      </div>
+        <canvas class="statistics__chart  statistics__chart--time" width="900"></canvas> 
+      </div>
     </section>`
-  )
+  );
 };
 
 export default class Statistics extends AbstractSmartComponent {
@@ -121,6 +275,8 @@ export default class Statistics extends AbstractSmartComponent {
     this._points = points;
 
     this._moneyChart = null;
+    this._transportChart = null;
+    this._timeChart = null;
   }
 
   getTemplate() {
@@ -145,16 +301,31 @@ export default class Statistics extends AbstractSmartComponent {
     const element = this.getElement();
 
     const moneyCtx = element.querySelector(`.statistics__chart--money`);
+    const transportCtx = element.querySelector(`.statistics__chart--transport`);
+    const timeCtx = element.querySelector(`.statistics__chart--time`);
+
+    this._transportChart = null;
+    this._timeChart = null;
 
     this._resetCharts();
 
     this._moneyChart = renderMoneyChart(moneyCtx, this._points.getPoints());
+    this._transportChart = renderTransportChart(transportCtx, this._points.getPoints());
+    this._timeChart = renderTimeChart(timeCtx, this._points.getPoints());
   }
 
   _resetCharts() {
     if (this._moneyChart) {
       this._moneyChart.destroy();
       this._moneyChart = null;
+    }
+    if (this._transportChart) {
+      this._transportChart.destroy();
+      this._transportChart = null;
+    }
+    if (this._timeChart) {
+      this._timeChart.destroy();
+      this._timeChart = null;
     }
   }
 

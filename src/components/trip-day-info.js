@@ -8,8 +8,9 @@ const createTripDayInfoTemplate = (date) => {
   const year = dateObj.getFullYear().toString().substr(1);
 
   return (
-    `<span class="day__counter">${day}</span>
-     <time class="day__date" datetime="2019-03-18">${month} ${year}</time>`
+    `<div class="day__info">
+      <span class="day__counter">${day}</span><time class="day__date" datetime="2019-03-18">${month} ${year}</time>
+     </div>`
   );
 };
 
