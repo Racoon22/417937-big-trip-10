@@ -1,7 +1,6 @@
 import PointComponent from "../components/point";
 import PointEditComponent from "../components/point-edit";
 import {remove, render, RenderPosition, replace} from "../utils/render";
-import {defaultEventType} from "../mock/event";
 import {slugGenerator} from "../utils/common";
 import moment from "moment";
 import Point from "../models/point";
@@ -14,8 +13,7 @@ export const Mode = {
 
 export const EmptyPoint = {
   id: null,
-  type: defaultEventType,
-  title: `random title`,
+  type: `flight`,
   destination: {},
   isFavorite: false,
   dateStart: {},

@@ -3,7 +3,6 @@ import moment from "moment";
 require(`flatpickr/dist/flatpickr.min.css`);
 import flatpikr from "flatpickr";
 import AbstractSmartComponent from "./abstract-smart-component";
-import {Destinations} from "../mock/event";
 import {Mode} from "../controllers/point";
 import {slugGenerator} from "../utils/common";
 import {pointTypes} from "../const";
@@ -363,7 +362,7 @@ export default class PointEdit extends AbstractSmartComponent {
         return;
       }
 
-      const destination = Destinations.find((it) => {
+      const destination = window.destinations.find((it) => {
         return it.name === destinationValue;
       });
 
