@@ -7,9 +7,9 @@ const getUniqItems = (item, index, array) => {
 };
 
 const renderMoneyChart = (moneyCtx, points) => {
-  const types = points.map((point) => point.type.name).filter(getUniqItems);
+  const types = points.map((point) => point.type).filter(getUniqItems);
   const moneyCountByTypes = types.map((type) => {
-    return points.filter((point) => point.type.name === type)
+    return points.filter((point) => point.type === type)
       .reduce((acc, point) => {
         return acc + point.price;
       }, 0);
@@ -94,9 +94,9 @@ const renderMoneyChart = (moneyCtx, points) => {
 };
 
 const renderTransportChart = (transportCtx, points) => {
-  const types = points.map((point) => point.type.name).filter(getUniqItems);
+  const types = points.map((point) => point.type).filter(getUniqItems);
   const transportCountByTypes = types.map((type) => {
-    return points.filter((point) => point.type.name === type).length;
+    return points.filter((point) => point.type === type).length;
   });
 
   return new Chart(transportCtx, {
@@ -178,9 +178,9 @@ const renderTransportChart = (transportCtx, points) => {
 };
 
 const renderTimeChart = (transportCtx, points) => {
-  const types = points.map((point) => point.type.name).filter(getUniqItems);
+  const types = points.map((point) => point.type).filter(getUniqItems);
   const transportCountByTypes = types.map((type) => {
-    return Math.ceil(points.filter((point) => point.type.name === type).reduce((acc, point) => {
+    return Math.ceil(points.filter((point) => point.type === type).reduce((acc, point) => {
       return acc + (point.dateEnd - point.dateStart);
     }, 0) / 3600000);
   });

@@ -348,7 +348,7 @@ export default class PointEdit extends AbstractSmartComponent {
     const element = this.getElement();
 
     element.querySelector(`.event__type-list`).addEventListener(`click`, (evt) => {
-      if(this._isLocked) {
+      if (this._isLocked) {
         return;
       }
       if (!evt.target.classList.contains(`event__type-input`)) {
