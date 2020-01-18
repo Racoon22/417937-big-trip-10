@@ -1,7 +1,9 @@
 import PointComponent from "../components/point";
 import PointEditComponent from "../components/point-edit";
 import {remove, render, RenderPosition, replace} from "../utils/render";
-import {defaultEventType} from "../mock/event";
+import {slugGenerator} from "../utils/common";
+import moment from "moment";
+import Point from "../models/point";
 
 export const Mode = {
   ADDING: `adding`,
@@ -10,15 +12,32 @@ export const Mode = {
 };
 
 export const EmptyPoint = {
-  id: String(new Date() + Math.random()),
-  type: defaultEventType,
-  title: `random title`,
-  city: {},
+  id: null,
+  type: `flight`,
+  destination: {},
   isFavorite: false,
   dateStart: {},
   dateEnd: {},
   price: 0,
   offers: [],
+};
+
+const parseFormData = (formData) => {
+  const offers = window.offers.map((offer) => offer.offers).flat()
+    .filter((offer) => {
+      return formData.getAll(`event-offer`).some((acceptedOffer) => {
+        return slugGenerator(offer.title) === acceptedOffer;
+      });
+    });
+  return new Point({
+    'type': formData.get(`event-type`),
+    'destination': window.destinations.find((destination) => destination.name === formData.get(`event-destination`)),
+    'date_from': moment(formData.get(`event-start-time`)).toJSON(),
+    'date_to': moment(formData.get(`event-end-time`)).toJSON(),
+    'is_favorite': Boolean(formData.get(`event-favorite`)),
+    'base_price': parseInt(formData.get(`event-price`), 10),
+    'offers': offers
+  });
 };
 
 export default class PointController {
@@ -48,7 +67,10 @@ export default class PointController {
     });
 
     this._pointEditComponent.setFavoriteButtonClickHandler(() => {
-      this._onDataChange(this, point, Object.assign({}, point, {isFavorite: !point.isFavorite}));
+      const newPoint = Point.clone(point);
+      newPoint.isFavorite = !newPoint.isFavorite;
+      this._onDataChange(this, point, newPoint);
+
       document.addEventListener(`keydown`, this._onEscPressDown);
     });
 
@@ -58,7 +80,9 @@ export default class PointController {
 
     this._pointEditComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
-      const data = this._pointEditComponent.getData();
+      const formData = this._pointEditComponent.getData();
+      const data = parseFormData(formData);
+
       this._onDataChange(this, point, data);
     });
 

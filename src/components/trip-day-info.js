@@ -1,11 +1,11 @@
-import {MONTH_NAMES} from "../const";
 import AbstractComponent from "./abstract-component";
+import moment from "moment";
 
 const createTripDayInfoTemplate = (date) => {
-  const dateObj = new Date(date);
-  const day = dateObj.getDate();
-  const month = MONTH_NAMES[dateObj.getMonth()];
-  const year = dateObj.getFullYear().toString().substr(1);
+  const dateObj = moment(date);
+  const day = dateObj.format(`DD`);
+  const month = dateObj.format(`MMM`);
+  const year = dateObj.format(`YYYY`);
 
   return (
     `<div class="day__info">
