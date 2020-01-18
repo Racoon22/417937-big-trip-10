@@ -7,6 +7,12 @@ import {Mode} from "../controllers/point";
 import {slugGenerator} from "../utils/common";
 import {pointTypes} from "../const";
 
+const DefaultData = {
+  DeleteButtonText: `Delete`,
+  SaveButtonText: `Save`,
+  CancelButtonText: `Cancel`
+};
+
 const generateImagesMarkup = (images) => {
   return images.map((image) => {
     return (
@@ -53,7 +59,7 @@ const generateCitiesMarkup = (destinations) => {
   });
 };
 
-const generateDestinationsMarkup = (type, destination) => {
+const generateDestinationsMarkup = (type, destination, isLocked) => {
   let placeholder = type.charAt(0).toUpperCase() + type.slice(1);
   placeholder += type.category === `transfer` ? ` to ` : ` in `;
   const destinationsDatalistMarkup = generateCitiesMarkup(window.destinations.filter((it) => it.name !== destination.name));
@@ -62,8 +68,8 @@ const generateDestinationsMarkup = (type, destination) => {
        <label class="event__label  event__type-output" for="event-destination-1">
           ${placeholder}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name ? destination.name : ``}" list="destination-list-1">
-        <datalist id="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name ? destination.name : ``}" list="destination-list" ${isLocked ? `disabled` : ``}> 
+        <datalist id="destination-list">
             ${destinationsDatalistMarkup}
         </datalist>
      </div>`
@@ -109,7 +115,7 @@ const generateControlsMarkup = (isFavorite) => {
 
 const createFormMarkup = (event, mode, options = {}) => {
   const {type, destination, isFavorite} = event;
-  const {price, dateStart, dateEnd, offers} = options;
+  const {price, dateStart, dateEnd, offers, externalData, isLocked} = options;
 
   const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
 
@@ -118,24 +124,27 @@ const createFormMarkup = (event, mode, options = {}) => {
   let availableOffers = window.offers.find((offer) => offer.type === type);
 
   const offersMarkup = generateOffersMarkup(availableOffers.offers, offers);
-  const destinationMarkup = generateDestinationsMarkup(type, destination);
+  const destinationMarkup = generateDestinationsMarkup(type, destination, isLocked);
   const detailsMarkup = generateDetailsMarkup(destination);
 
   const transferTypes = generateTypesMarkup(pointTypes.transport, type);
   const activityTypes = generateTypesMarkup(pointTypes.activity, type);
 
-  const deleteButton = mode === Mode.ADDING ? `Cancel` : `Delete`;
   const controlsMarkup = mode === Mode.ADDING ? `` : generateControlsMarkup(isFavorite);
+
+  const deleteButtonText = mode === Mode.ADDING ? externalData.CancelButtonText : externalData.DeleteButtonText;
+  const saveButtonText = externalData.SaveButtonText;
+
 
   return (
     `<form class="${mode === Mode.ADDING ? `trip-events__item` : ``} event  event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
-          <label class="event__type  event__type-btn" for="event-type-toggle-1">
+          <label class="event__type  event__type-btn" for="event-type-toggle">
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle" type="checkbox">
 
           <div class="event__type-list">
             <fieldset class="event__type-group">
@@ -156,12 +165,12 @@ const createFormMarkup = (event, mode, options = {}) => {
           <label class="visually-hidden" for="event-start-time">
             From
           </label>
-          <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${formattedDateStart}">
+          <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${formattedDateStart}" ${isLocked ? `disabled` : ``}>
           &mdash;
           <label class="visually-hidden" for="event-end-time">
             To
           </label>
-          <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${formattedDateEnd}">
+          <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${formattedDateEnd}" ${isLocked ? `disabled` : ``}>
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -169,11 +178,11 @@ const createFormMarkup = (event, mode, options = {}) => {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}" ${isLocked ? `disabled` : ``}>
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">${deleteButton}</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
+        <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
 
         ${controlsMarkup}
       </header>
@@ -207,6 +216,8 @@ export default class PointEdit extends AbstractSmartComponent {
     this._dateStart = point.dateStart;
     this._dateEnd = point.dateEnd;
     this._offers = point.offers;
+    this._externalData = DefaultData;
+    this._isLocked = false;
 
     this._subscribeOnEvents();
     this._flatpikrDayStart = null;
@@ -218,7 +229,6 @@ export default class PointEdit extends AbstractSmartComponent {
     this._closeButtonClickHandler = null;
     this._deleteButtonClickHandler = null;
     this._submitHandler = null;
-
   }
 
   getTemplate() {
@@ -227,6 +237,8 @@ export default class PointEdit extends AbstractSmartComponent {
       dateStart: this._dateStart,
       dateEnd: this._dateEnd,
       offers: this._offers,
+      externalData: this._externalData,
+      isLocked: this._isLocked
     });
   }
 
@@ -284,6 +296,23 @@ export default class PointEdit extends AbstractSmartComponent {
     super.removeElement();
   }
 
+  setData(data) {
+    this._externalData = Object.assign({}, DefaultData, data);
+    this.rerender();
+  }
+
+  isLocked() {
+    return this._isLocked;
+  }
+
+  lock() {
+    this._isLocked = true;
+  }
+
+  unlock() {
+    this._isLocked = false;
+  }
+
   _aplayFlatpikr() {
     if (this._flatpikrDayStart) {
       this._flatpikrDayStart.destroy();
@@ -319,6 +348,9 @@ export default class PointEdit extends AbstractSmartComponent {
     const element = this.getElement();
 
     element.querySelector(`.event__type-list`).addEventListener(`click`, (evt) => {
+      if(this._isLocked) {
+        return;
+      }
       if (!evt.target.classList.contains(`event__type-input`)) {
         return;
       }

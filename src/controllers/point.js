@@ -5,6 +5,8 @@ import {slugGenerator} from "../utils/common";
 import moment from "moment";
 import Point from "../models/point";
 
+const SHAKE_ANIMATION_TIMEOUT = 600;
+
 export const Mode = {
   ADDING: `adding`,
   DEFAULT: `default`,
@@ -67,6 +69,9 @@ export default class PointController {
     });
 
     this._pointEditComponent.setFavoriteButtonClickHandler(() => {
+      if (this._pointEditComponent.isLocked()) {
+        return;
+      }
       const newPoint = Point.clone(point);
       newPoint.isFavorite = !newPoint.isFavorite;
       this._onDataChange(this, point, newPoint);
@@ -80,13 +85,32 @@ export default class PointController {
 
     this._pointEditComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
+      if (this._pointEditComponent.isLocked()) {
+        return;
+      }
+
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
+
+      this._pointEditComponent.lock();
+      this._pointEditComponent.setData({
+        SaveButtonText: `Saving...`
+      });
 
       this._onDataChange(this, point, data);
     });
 
-    this._pointEditComponent.setDeleteButtonClickHandler(() => this._onDataChange(this, point, null));
+    this._pointEditComponent.setDeleteButtonClickHandler(() => {
+      if (this._pointEditComponent.isLocked()) {
+        return;
+      }
+      this._pointEditComponent.lock();
+      this._pointEditComponent.setData({
+        DeleteButtonText: `Deleting...`
+      });
+
+      this._onDataChange(this, point, null);
+    });
 
     switch (mode) {
       case Mode.DEFAULT :
@@ -135,10 +159,33 @@ export default class PointController {
     document.removeEventListener(`keydown`, this._onEscPressDown);
   }
 
+  shake() {
+    this._pointEditComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    this._pointComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._pointEditComponent.getElement().style.animation = ``;
+      this._pointComponent.getElement().style.animation = ``;
+
+      this._pointEditComponent.setData({
+        saveButtonText: `Save`,
+        deleteButtonText: `Delete`,
+      });
+    }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
   setDefaultView() {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceEditToPoint();
     }
+  }
+
+  lock() {
+    this._pointEditComponent.lock();
+  }
+
+  unlock() {
+    this._pointEditComponent.unlock();
   }
 
   destroy() {
