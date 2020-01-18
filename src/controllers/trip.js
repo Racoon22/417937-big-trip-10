@@ -159,8 +159,9 @@ export default class TripController {
           this._updatePoints();
           pointController.unlock();
         }).catch(() => {
-          pointController.shake();
+          pointController.setError();
           pointController.unlock();
+          pointController.shake();
         });
       }
     } else {
@@ -170,21 +171,24 @@ export default class TripController {
           this._updatePoints();
           pointController.unlock();
         }).catch(() => {
-          pointController.shake();
+          pointController.setError();
           pointController.unlock();
+          pointController.shake();
         });
       } else {
         this._api.updatePoint(oldData.id, newData).then((pointModel) => {
           const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
 
           if (isSuccess) {
+            pointController.setError();
             pointController.render(newData, PointControllerMode.DEFAULT);
             pointController.unlock();
             this._updatePoints();
           }
         }).catch(() => {
-          pointController.shake();
+          pointController.setError();
           pointController.unlock();
+          pointController.shake();
         });
       }
     }

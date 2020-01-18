@@ -89,6 +89,10 @@ export default class PointController {
         return;
       }
 
+      if (this._pointEditComponent.getError()) {
+        this._pointEditComponent.clearError();
+      }
+
       const formData = this._pointEditComponent.getData();
       const data = parseFormData(formData);
 
@@ -104,6 +108,11 @@ export default class PointController {
       if (this._pointEditComponent.isLocked()) {
         return;
       }
+
+      if (this._pointEditComponent.getError()) {
+        this._pointEditComponent.clearError();
+      }
+
       this._pointEditComponent.lock();
       this._pointEditComponent.setData({
         DeleteButtonText: `Deleting...`
@@ -186,6 +195,10 @@ export default class PointController {
 
   unlock() {
     this._pointEditComponent.unlock();
+  }
+
+  setError() {
+    this._pointEditComponent.setError();
   }
 
   destroy() {

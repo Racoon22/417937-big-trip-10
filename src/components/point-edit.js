@@ -115,7 +115,7 @@ const generateControlsMarkup = (isFavorite) => {
 
 const createFormMarkup = (event, mode, options = {}) => {
   const {type, destination, isFavorite} = event;
-  const {price, dateStart, dateEnd, offers, externalData, isLocked} = options;
+  const {price, dateStart, dateEnd, offers, externalData, isLocked, hasError} = options;
 
   const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
 
@@ -137,7 +137,7 @@ const createFormMarkup = (event, mode, options = {}) => {
 
 
   return (
-    `<form class="${mode === Mode.ADDING ? `trip-events__item` : ``} event  event--edit" action="#" method="post">
+    `<form class="${mode === Mode.ADDING ? `trip-events__item` : ``} ${hasError ? `event--error` : ``} event  event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle">
@@ -217,7 +217,9 @@ export default class PointEdit extends AbstractSmartComponent {
     this._dateEnd = point.dateEnd;
     this._offers = point.offers;
     this._externalData = DefaultData;
+
     this._isLocked = false;
+    this._hasError = false;
 
     this._subscribeOnEvents();
     this._flatpikrDayStart = null;
@@ -238,7 +240,8 @@ export default class PointEdit extends AbstractSmartComponent {
       dateEnd: this._dateEnd,
       offers: this._offers,
       externalData: this._externalData,
-      isLocked: this._isLocked
+      isLocked: this._isLocked,
+      hasError: this._hasError
     });
   }
 
@@ -258,7 +261,6 @@ export default class PointEdit extends AbstractSmartComponent {
 
     this._submitHandler = handler;
   }
-
 
   setCloseButtonClickHandler(handler) {
     if (this._mode === Mode.DEFAULT) {
@@ -311,6 +313,20 @@ export default class PointEdit extends AbstractSmartComponent {
 
   unlock() {
     this._isLocked = false;
+  }
+
+  setError() {
+    this._hasError = true;
+    this.rerender();
+  }
+
+  getError() {
+    return this._hasError;
+  }
+
+  clearError() {
+    this._hasError = false;
+    this.rerender();
   }
 
   _aplayFlatpikr() {
