@@ -3,7 +3,7 @@ import moment from "moment";
 require(`flatpickr/dist/flatpickr.min.css`);
 import flatpikr from "flatpickr";
 import AbstractSmartComponent from "./abstract-smart-component";
-import {Destinations, eventTypes} from "../mock/event";
+import {Destinations} from "../mock/event";
 import {Mode} from "../controllers/point";
 import {slugGenerator} from "../utils/common";
 import {pointTypes} from "../const";
@@ -29,8 +29,8 @@ const generateTypesMarkup = (types, acceptedType) => {
 };
 
 const generateOffersMarkup = (availableOffers, offers) => {
-  return availableOffers.map((offer) => {
-    const {title, price} = offer;
+  return availableOffers.map((it) => {
+    const {title, price} = it;
     const slug = slugGenerator(title);
     const isChecked = availableOffers.length > 0 && offers.some((offer) => offer.title === title);
     return (

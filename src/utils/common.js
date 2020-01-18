@@ -38,5 +38,5 @@ export const isOneDay = (dateA, dateB) => {
 };
 
 export const slugGenerator = (text) => {
-  return text.toLowerCase().replace(/\W/g, '-');
+  return text.toLowerCase().replace(/\W/g, `-`);
 };

@@ -55,7 +55,7 @@ const renderMoneyChart = (moneyCtx, points) => {
             fontColor: `#000000`,
             fontSize: 14,
             display: true,
-            callback: function(value) {
+            callback: (value) => {
               return value.toUpperCase();
             }
           }
@@ -139,7 +139,7 @@ const renderTransportChart = (transportCtx, points) => {
             fontColor: `#000000`,
             fontSize: 14,
             display: true,
-            callback: function(value) {
+            callback: (value) => {
               return value.toUpperCase();
             }
           }
@@ -225,7 +225,7 @@ const renderTimeChart = (transportCtx, points) => {
             fontColor: `#000000`,
             fontSize: 14,
             display: true,
-            callback: function(value) {
+            callback: (value) => {
               return value.toUpperCase();
             }
           }

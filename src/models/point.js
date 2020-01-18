@@ -1,4 +1,4 @@
-import moment from "moment"
+import moment from "moment";
 
 export default class Point {
   constructor(data) {
@@ -22,7 +22,7 @@ export default class Point {
       'offers': this.offers,
       'is_favorite': this.isFavorite,
       'type': this.type,
-    }
+    };
   }
 
   static parsePoint(data) {

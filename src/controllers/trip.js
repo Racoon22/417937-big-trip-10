@@ -72,7 +72,7 @@ export default class TripController {
   }
 
   setOffers(offers) {
-    this.offers = offers
+    this.offers = offers;
   }
 
   setDestinations(destinations) {
