@@ -2,10 +2,11 @@ import moment from "moment";
 
 require(`flatpickr/dist/flatpickr.min.css`);
 import flatpikr from "flatpickr";
-import {OFFERS} from "../const";
 import AbstractSmartComponent from "./abstract-smart-component";
 import {Destinations, eventTypes} from "../mock/event";
 import {Mode} from "../controllers/point";
+import {slugGenerator} from "../utils/common";
+import {pointTypes} from "../const";
 
 const generateImagesMarkup = (images) => {
   return images.map((image) => {
@@ -17,24 +18,25 @@ const generateImagesMarkup = (images) => {
 
 const generateTypesMarkup = (types, acceptedType) => {
   return types.map((type) => {
-    const isChecked = type.name === acceptedType.name;
+    const isChecked = type === acceptedType;
     return (
       `<div class="event__type-item">
-        <input id="event-type-${type.name}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.name.toLowerCase()}" ${isChecked ? `checked` : ``}>
-        <label class="event__type-label  event__type-label--${type.name}" for="event-type-${type.name}">${type.name}</label>
+        <input id="event-type-${type}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.toLowerCase()}" ${isChecked ? `checked` : ``}>
+        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}">${type}</label>
       </div>`
     );
   }).join(`\n`);
 };
 
-const generateOffersMarkup = (offers, acceptedOffers) => {
-  return offers.map((offer) => {
-    const {title, type, price} = offer;
-    const isChecked = acceptedOffers.some((acceptedOffer) => acceptedOffer.type === type);
+const generateOffersMarkup = (availableOffers, offers) => {
+  return availableOffers.map((offer) => {
+    const {title, price} = offer;
+    const slug = slugGenerator(title);
+    const isChecked = availableOffers.length > 0 && offers.some((offer) => offer.title === title);
     return (
       `<div class="event__offer-selector">
-       <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}" type="checkbox" value="${type}" name="event-offer" ${isChecked ? `checked` : ``}>
-       <label class="event__offer-label" for="event-offer-${type}">
+       <input class="event__offer-checkbox  visually-hidden" id="event-offer-${slug}" type="checkbox" value="${slug}" name="event-offer" ${isChecked ? `checked` : ``}>
+       <label class="event__offer-label" for="event-offer-${slug}">
          <span class="event__offer-title">${title}</span>
           &plus;
           &euro;&nbsp;<span class="event__offer-price">${price}</span>
@@ -44,41 +46,41 @@ const generateOffersMarkup = (offers, acceptedOffers) => {
   }).join(`\n`);
 };
 
-const generateCitiesMarkup = (cities) => {
-  return cities.map((city) => {
+const generateCitiesMarkup = (destinations) => {
+  return destinations.map((destination) => {
     return (
-      `<option value="${city.place}"></option>`
+      `<option value="${destination.name}"></option>`
     );
   });
 };
 
-const generateDestinationsMarkup = (type, city) => {
-  let placeholder = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+const generateDestinationsMarkup = (type, destination) => {
+  let placeholder = type.charAt(0).toUpperCase() + type.slice(1);
   placeholder += type.category === `transfer` ? ` to ` : ` in `;
-  const citiesDatalistMarkup = generateCitiesMarkup(Destinations.filter((destination) => destination.place !== city.place));
+  const destinationsDatalistMarkup = generateCitiesMarkup(window.destinations.filter((it) => it.name !== destination.name));
   return (
     `<div class="event__field-group  event__field-group--destination">
        <label class="event__label  event__type-output" for="event-destination-1">
           ${placeholder}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city.place ? city.place : ``}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name ? destination.name : ``}" list="destination-list-1">
         <datalist id="destination-list-1">
-            ${citiesDatalistMarkup}
+            ${destinationsDatalistMarkup}
         </datalist>
      </div>`
   );
 };
 
-const generateDetailsMarkup = (city) => {
-  const imagesMarkup = city.images && city.images.length > 0 ? generateImagesMarkup(city.images) : ``;
-  if (!imagesMarkup && !city.description) {
+const generateDetailsMarkup = (destination) => {
+  const imagesMarkup = destination.images && destination.images.length > 0 ? generateImagesMarkup(destination.images) : ``;
+  if (!imagesMarkup && !destination.description) {
     return ``;
   }
   return (
     `<section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
           <p class="event__destination-description">
-            ${city.description}
+            ${destination.description}
           </p>
 
           <div class="event__photos-container">
@@ -107,26 +109,21 @@ const generateControlsMarkup = (isFavorite) => {
 };
 
 const createFormMarkup = (event, mode, options = {}) => {
-  const {type, city, isFavorite} = event;
+  const {type, destination, isFavorite} = event;
   const {price, dateStart, dateEnd, offers} = options;
 
   const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
 
   const formattedDateEnd = moment(dateEnd);
 
-  let availableOffers = [];
-  if (type.offers) {
-    availableOffers = OFFERS.filter((offer) => {
-      return type.offers.indexOf(offer.type) !== -1;
-    });
-  }
+  let availableOffers = window.offers.find((offer) => offer.type === type);
 
-  const offersMarkup = generateOffersMarkup(availableOffers, offers);
-  const destinationMarkup = generateDestinationsMarkup(type, city);
-  const detailsMarkup = generateDetailsMarkup(city);
+  const offersMarkup = generateOffersMarkup(availableOffers.offers, offers);
+  const destinationMarkup = generateDestinationsMarkup(type, destination);
+  const detailsMarkup = generateDetailsMarkup(destination);
 
-  const transferTypes = generateTypesMarkup(eventTypes.filter((eventType) => eventType.category === `transfer`), type);
-  const activityTypes = generateTypesMarkup(eventTypes.filter((eventType) => eventType.category === `activity`), type);
+  const transferTypes = generateTypesMarkup(pointTypes.transport, type);
+  const activityTypes = generateTypesMarkup(pointTypes.activity, type);
 
   const deleteButton = mode === Mode.ADDING ? `Cancel` : `Delete`;
   const controlsMarkup = mode === Mode.ADDING ? `` : generateControlsMarkup(isFavorite);
@@ -137,7 +134,7 @@ const createFormMarkup = (event, mode, options = {}) => {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${type.name}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -202,24 +199,6 @@ const createEventEditTemplate = (event, mode, options = {}) => {
   return mode === Mode.DEFAULT ? `<li class="trip-events__item">${formMarkup}</li>` : formMarkup;
 };
 
-const parseFormData = (formData) => {
-  const type = formData.get(`event-type`);
-  const offers = OFFERS.filter((offer) => {
-    return formData.getAll(`event-offer`).some((acceptedOffer) => {
-      return offer.type === acceptedOffer;
-    });
-  });
-  return {
-    type: eventTypes.find((eventType) => eventType.name === type),
-    city: Destinations.find((destination) => destination.place === formData.get(`event-destination`)),
-    dateStart: new Date(formData.get(`event-start-time`)),
-    dateEnd: new Date(formData.get(`event-end-time`)),
-    isFavorite: formData.get(`event-favorite`),
-    price: parseInt(formData.get(`event-price`), 10),
-    offers
-  };
-};
-
 export default class PointEdit extends AbstractSmartComponent {
   constructor(point, mode = Mode.DEFAULT) {
     super();
@@ -236,6 +215,7 @@ export default class PointEdit extends AbstractSmartComponent {
 
     this._aplayFlatpikr();
 
+    this._favoriteButtonClickHandler = null;
     this._closeButtonClickHandler = null;
     this._deleteButtonClickHandler = null;
     this._submitHandler = null;
@@ -253,8 +233,7 @@ export default class PointEdit extends AbstractSmartComponent {
 
   getData() {
     const form = this._mode === Mode.ADDING ? this.getElement() : this.getElement().querySelector(`.event--edit`);
-    const formData = new FormData(form);
-    return parseFormData(formData);
+    return new FormData(form);
   }
 
   setSubmitHandler(handler) {
@@ -289,6 +268,7 @@ export default class PointEdit extends AbstractSmartComponent {
       this.getElement().querySelector(`.event__favorite-checkbox`)
         .addEventListener(`click`, handler);
     }
+    this._favoriteButtonClickHandler = handler;
   }
 
   removeElement() {
@@ -346,13 +326,11 @@ export default class PointEdit extends AbstractSmartComponent {
 
       const type = evt.target.value;
 
-      if (this._point.type.name === type) {
+      if (this._point.type === type) {
         return;
       }
 
-      this._point.type = eventTypes.find((eventType) => {
-        return eventType.name === type;
-      });
+      this._point.type = type;
 
       this._offers = [];
 
@@ -375,25 +353,25 @@ export default class PointEdit extends AbstractSmartComponent {
     });
 
     element.querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
-      const city = evt.target.value;
+      const destinationValue = evt.target.value;
 
-      if (city === ``) {
+      if (destinationValue === ``) {
         return;
       }
 
-      if (this._point.city.place === city) {
+      if (this._point.destination.name === destinationValue) {
         return;
       }
 
       const destination = Destinations.find((it) => {
-        return it.place === city;
+        return it.name === destinationValue;
       });
 
       if (!destination) {
         return;
       }
 
-      this._point.city = destination;
+      this._point.destination = destination;
       this.rerender();
     });
   }
@@ -406,7 +384,9 @@ export default class PointEdit extends AbstractSmartComponent {
     this._subscribeOnEvents();
     this.setCloseButtonClickHandler(this._closeButtonClickHandler);
     this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+    this.setFavoriteButtonClickHandler(this._favoriteButtonClickHandler);
     this.setSubmitHandler(this._submitHandler);
     this._aplayFlatpikr();
   }
 }
+

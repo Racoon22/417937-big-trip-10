@@ -23,110 +23,41 @@ const generatePhotos = (count) => {
 
 export const Destinations = [
   {
-    place: `Saint Petersburg`,
+    name: `Saint Petersburg`,
     description: generateDescription(),
     images: generatePhotos(getRandomInteger(PHOTO_MIN_COUNT, PHOTO_MAX_COUNT))
   },
   {
-    place: `Geneva`,
+    name: `Geneva`,
     description: generateDescription(),
     images: generatePhotos(getRandomInteger(PHOTO_MIN_COUNT, PHOTO_MAX_COUNT))
   },
   {
-    place: `Chamonix`,
+    name: `Chamonix`,
     description: generateDescription(),
     images: generatePhotos(getRandomInteger(PHOTO_MIN_COUNT, PHOTO_MAX_COUNT))
   },
   {
-    place: `Amsterdam`,
+    name: `Amsterdam`,
   },
 ];
 
 export const eventTypes =
   [
-    {
-      name: `bus`,
-      category: `transfer`,
-      offers: [`luggage`, `seats`, `train`]
-    },
-    {
-      name: `flight`,
-      category: `transfer`,
-      offers: [
-        `luggage`, `comfort`, `seats`,
-      ]
-    },
-    {
-      name: `ship`,
-      category: `transfer`,
-      offers: [
-        `luggage`, `comfort`,
-      ]
-    },
-    {
-      name: `taxi`,
-      category: `transfer`,
-      offers: [
-        `luggage`, `train`
-      ]
-    },
-    {
-      name: `transport`,
-      category: `transfer`,
-      offers: [
-        `luggage`, `comfort`, `seats`, `train`
-      ]
-    },
-    {
-      name: `train`,
-      category: `transfer`,
-      offers: [
-        `luggage`, `comfort`, `train`
-      ]
-    },
-    {
-      name: `drive`,
-      category: `transfer`,
-      offers: [
-        `comfort`, `seats`, `train`
-      ]
-    },
-    {
-      name: `sightseeing`,
-      category: `activity`,
-      offers: [
-        `meal`
-      ]
-    },
-    {
-      name: `restaurant`,
-      category: `activity`,
-      offers:
-        [
-          `meal`
-        ]
-    },
-    {
-      name: `check-in`,
-      category: `activity`,
-      offers:
-        [
-          `meal`
-        ]
-    }
+    `bus`,
+    `flight`,
+    `ship`,
+    `taxi`,
+    `transport`,
+    `train`,
+    `drive`,
+    `sightseeing`,
+    `restaurant`,
+    `check-in`,
   ]
 ;
 
 export const defaultEventType = eventTypes.find((type) => type.name === `flight`);
-
-const generateOffers = (offers) => {
-  return OFFERS.filter((offer) => {
-    const chosenOffers = offers
-      .sort(() => Math.random() - 0.5)
-      .slice(0, getRandomInteger(OFFERS_MIN_COUNT, OFFERS_MAX_COUNT));
-    return chosenOffers.indexOf(offer.type) !== -1;
-  });
-};
 
 const generateEvent = () => {
   const dates = [getRandomDateTime(), getRandomDateTime()];
@@ -136,7 +67,7 @@ const generateEvent = () => {
     id: String(new Date() + Math.random()),
     type: pointType,
     title: `random title`,
-    city: getRandomArrayItem(Destinations),
+    destination: getRandomArrayItem(Destinations),
     isFavorite: Math.random() > 0.5,
     dateStart: dates[0],
     dateEnd: dates[1],

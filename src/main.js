@@ -1,5 +1,5 @@
+import API from './api.js';
 import {render, RenderPosition} from "./utils/render";
-import {generateEvents} from "./mock/event";
 import TripComponent from "./components/trip"
 import MenuComponent, {MenuItem} from "./components/menu";
 import StatisticsComponent from './components/statistics.js';
@@ -8,16 +8,17 @@ import TripController from "./controllers/trip";
 import PointsModel from "./models/points";
 import NewPointComponent from "./components/new-point";
 
-const POINT_COUNT = 12;
-let points = generateEvents(POINT_COUNT);
+
+const AUTHORIZATION = `Basic dXNlckBwYXAlexANzd29yZAo`;
+const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip/`;
+
+const api = new API(END_POINT, AUTHORIZATION);
 const pointsModel = new PointsModel();
-pointsModel.setPoints(points);
 
 const siteMainElement = document.querySelector('.page-main .page-body__container');
 const siteHeaderElement = document.querySelector(`.trip-main`);
 const tripControls = document.querySelector(`.trip-main__trip-controls`);
 const newPointComponent = new NewPointComponent();
-render(siteHeaderElement, newPointComponent);
 
 const menuComponent = new MenuComponent();
 render(tripControls, menuComponent, RenderPosition.BEFOREBEGIN);
@@ -28,11 +29,9 @@ filterController.render();
 const tripComponent = new TripComponent();
 render(siteMainElement, tripComponent);
 
-const tripController = new TripController(tripComponent, pointsModel);
+const tripController = new TripController(tripComponent, pointsModel, api);
 const statisticsComponent = new StatisticsComponent(pointsModel);
 render(siteMainElement, statisticsComponent);
-
-tripController.render();
 statisticsComponent.hide();
 
 newPointComponent.setOnClickHandler(() => {
@@ -41,7 +40,6 @@ newPointComponent.setOnClickHandler(() => {
   tripController.show();
   tripController.createPoint();
 });
-
 
 menuComponent.setOnClick((menuItem) => {
   switch (menuItem) {
@@ -56,4 +54,22 @@ menuComponent.setOnClick((menuItem) => {
       tripController.show();
       break;
   }
+});
+
+Promise.all([
+  api.getOffers()
+    .then((offers) => {
+      window.offers = offers;
+    }),
+  api.getDestination()
+    .then((destinations) => {
+      window.destinations = destinations;
+    }),
+]).then(() => {
+  api.getPoints()
+    .then((points) => {
+      render(siteHeaderElement, newPointComponent);
+      pointsModel.setPoints(points);
+      tripController.render();
+    });
 });

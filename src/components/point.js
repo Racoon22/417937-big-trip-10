@@ -40,22 +40,22 @@ const generateOffersMarkup = (offers) => {
 };
 
 const createTripEventTemplate = (event) => {
-  const {type, city, dateStart, dateEnd, price, offers} = event;
+  const {type, destination, dateStart, dateEnd, price, offers} = event;
   const timeInterval = generateTimeInterval(dateStart, dateEnd);
 
   const timeStart = castTimeFormat(dateStart);
   const timeEnd = castTimeFormat(dateEnd);
   const offersMarkup = generateOffersMarkup(offers);
 
-  let placeholder = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+  let placeholder = type.charAt(0).toUpperCase() + type.slice(1);
   placeholder += type.category === `transfer` ? ` to ` : ` in `;
-  const title = placeholder + city.place;
+  const title = placeholder + destination.name;
 
   return (
     `<li class="trip-events__item">
       <div class="event">
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${type.name}.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${title}</h3>
 

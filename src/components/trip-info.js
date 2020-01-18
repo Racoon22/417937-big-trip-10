@@ -1,27 +1,27 @@
-import {MONTH_NAMES} from "../const";
 import AbstractComponent from "./abstract-component";
+import moment from "moment";
 
 const getCities = (events) => {
-  let cities = events.map((event) => event.city);
+  let cities = events.map((event) => event.destination);
   return new Set(cities);
 };
 
 const getDuration = (events) => {
-  const dateStart = events[0].dateStart;
-  const dateFinish = events[events.length - 1].dateStart;
+  const dateStart = moment(events[0].dateStart);
+  const dateFinish = moment(events[events.length - 1].dateStart);
   let duration;
-  if (dateStart.getMonth() === dateFinish.getMonth()) {
-    duration = `${MONTH_NAMES[dateStart.getMonth()]} ${dateStart.getDate()} &mdash; ${dateFinish.getDate()}`;
+  if (dateStart.format(`M`) === dateFinish.format(`M`)) {
+    duration = `${dateStart.format(`MMM`)} ${dateStart.format(`DD`)} &mdash; ${dateFinish.format(`DD`)}`;
   } else {
-    duration = `${MONTH_NAMES[dateStart.getMonth()]} ${dateStart.getDate()} &mdash; ${MONTH_NAMES[dateFinish.getMonth()]} ${dateFinish.getDate()}`;
+    duration = `${dateStart.format(`MMM`)} ${dateStart.format(`DD`)} &mdash; ${dateFinish.format(`MMM`)} ${dateFinish.format(`DD`)}`;
   }
   return duration;
 };
 
 const createTripInfoTemplate = (events) => {
   events.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
-  const cities = Array.from(getCities(events));
-  const title = cities.length > 3 ? `${cities.shift().place} &mdash; ${cities.pop().place}` : cities.map((city) => city.place).join(` &mdash; `);
+  const destinations = Array.from(getCities(events));
+  const title = destinations.length > 3 ? `${destinations.shift().name} &mdash; ${destinations.pop().name}` : destinations.map((destination) => destination.name).join(` &mdash; `);
   const duration = getDuration(events);
 
   return (

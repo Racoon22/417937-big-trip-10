@@ -50,9 +50,10 @@ const renderSortedTrip = (container, events, onDataChange, onViewChange) => {
 };
 
 export default class TripController {
-  constructor(container, pointsModel) {
+  constructor(container, pointsModel, api) {
     this._container = container;
     this._pointsModel = pointsModel;
+    this._api = api;
 
     this._tripDays = new TripDays();
     this._noEvent = new NoEvent();
@@ -61,10 +62,21 @@ export default class TripController {
     this._creatingPoint = null;
 
     this._points = [];
+    this.offers = [];
+    this.destinations = [];
+
     this._onDataChange = this._onDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
     this._pointsModel.setFilterChangeHandler(this._onFilterChange);
+  }
+
+  setOffers(offers) {
+    this.offers = offers
+  }
+
+  setDestinations(destinations) {
+    this.destinations = destinations;
   }
 
   createPoint() {
@@ -160,11 +172,14 @@ export default class TripController {
         this._pointsModel.removePoint(oldData.id);
         this._updatePoints();
       } else {
-        const isSuccess = this._pointsModel.updatePoint(oldData.id, newData);
+        this._api.updatePoint(oldData.id, newData).then((pointModel) => {
+          const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
 
-        if (isSuccess) {
-          pointController.render(newData, PointControllerMode.DEFAULT);
-        }
+          if (isSuccess) {
+            pointController.render(newData, PointControllerMode.DEFAULT);
+            this._updatePoints();
+          }
+        });
       }
     }
   }

@@ -35,7 +35,7 @@ const renderMoneyChart = (moneyCtx, points) => {
       plugins: {
         datalabels: {
           formatter(value) {
-            return `€` + value;
+            return `${value}€`;
           },
           font: {
             size: 14
@@ -55,12 +55,15 @@ const renderMoneyChart = (moneyCtx, points) => {
             fontColor: `#000000`,
             fontSize: 14,
             display: true,
+            callback: function(value) {
+              return value.toUpperCase();
+            }
           }
         }],
         xAxes: [{
           ticks: {
             beginAtZero: true,
-            display: false
+            display: false,
           },
           gridLines: {
             display: false,
@@ -115,6 +118,9 @@ const renderTransportChart = (transportCtx, points) => {
     options: {
       plugins: {
         datalabels: {
+          formatter(value) {
+            return `${value}x`;
+          },
           font: {
             size: 14
           },
@@ -133,6 +139,9 @@ const renderTransportChart = (transportCtx, points) => {
             fontColor: `#000000`,
             fontSize: 14,
             display: true,
+            callback: function(value) {
+              return value.toUpperCase();
+            }
           }
         }],
         xAxes: [{
@@ -195,6 +204,9 @@ const renderTimeChart = (transportCtx, points) => {
     options: {
       plugins: {
         datalabels: {
+          formatter(value) {
+            return `${value}H`;
+          },
           font: {
             size: 14
           },
@@ -213,6 +225,9 @@ const renderTimeChart = (transportCtx, points) => {
             fontColor: `#000000`,
             fontSize: 14,
             display: true,
+            callback: function(value) {
+              return value.toUpperCase();
+            }
           }
         }],
         xAxes: [{
