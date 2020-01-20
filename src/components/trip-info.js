@@ -18,17 +18,29 @@ const getDuration = (events) => {
   return duration;
 };
 
-const createTripInfoTemplate = (events) => {
-  events.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
-  const destinations = Array.from(getCities(events));
-  const title = destinations.length > 3 ? `${destinations.shift().name} &mdash; ${destinations.pop().name}` : destinations.map((destination) => destination.name).join(` &mdash; `);
-  const duration = getDuration(events);
+const createTripInfoTemplate = (points) => {
+  points.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
+  const destinations = Array.from(getCities(points));
+  const title = destinations.length > 3 ? `${destinations.shift().name} &mdash; ... &mdash; ${destinations.pop().name}` : destinations.map((destination) => destination.name).join(` &mdash; `);
+  const duration = getDuration(points);
+  const price = points.reduce((acc, point) => {
+    return acc + point.price + point.offers.reduce((offersPrice, offer) => {
+      return offersPrice + offer.price;
+    }, 0);
+  }, 0);
 
   return (
-    `<div class="trip-info__main">
-         <h1 class="trip-info__title">${title}</h1>
-           <p class="trip-info__dates">${duration}</p>
-     </div>`
+    `<div class="trip-info">
+        <div class="trip-info__main">
+          <h1 class="trip-info__title">${title}</h1>
+
+          <p class="trip-info__dates">${duration}</p>
+        </div>
+
+        <p class="trip-info__cost">
+         Total: &euro;&nbsp;<span class="trip-info__cost-value">${price}</span>
+        </p>
+    </div>`
   );
 };
 export default class TripInfo extends AbstractComponent {

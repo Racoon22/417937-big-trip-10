@@ -18,8 +18,8 @@ export const EmptyPoint = {
   type: `flight`,
   destination: {},
   isFavorite: false,
-  dateStart: {},
-  dateEnd: {},
+  dateStart: new Date(),
+  dateEnd: new Date(),
   price: 0,
   offers: [],
 };

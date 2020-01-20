@@ -1,21 +1,27 @@
 import AbstractComponent from "./abstract-component";
 import moment from "moment";
 
-const createTripDayInfoTemplate = (date) => {
+const generateInfo = (date) => {
   const dateObj = moment(date);
   const day = dateObj.format(`DD`);
   const month = dateObj.format(`MMM`);
-  const year = dateObj.format(`YYYY`);
+  const year = dateObj.format(`YY`);
+  return (
+    `<span class="day__counter">${day}</span><time class="day__date" datetime="${year}-${month}-${day}">${month} ${year}</time>`
+  )
+};
 
+const createTripDayInfoTemplate = (date) => {
+  const infoMarkup = date ? generateInfo(date) : ``;
   return (
     `<div class="day__info">
-      <span class="day__counter">${day}</span><time class="day__date" datetime="2019-03-18">${month} ${year}</time>
+      ${infoMarkup}
      </div>`
   );
 };
 
 export default class TripDayInfo extends AbstractComponent {
-  constructor(date) {
+  constructor(date = null) {
     super();
     this._date = date;
   }

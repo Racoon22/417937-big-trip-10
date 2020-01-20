@@ -2,17 +2,15 @@ import TripDay from "../components/trip-day";
 import TripInfo from "../components/trip-info";
 import Sort, {SORT_TYPES} from "../components/sort";
 import TripDays from "../components/trip-days";
-import NoEvent from "../components/no-events";
+import NoEvent from "../components/no-points";
 import {render, RenderPosition} from "../utils/render";
 import TripDayInfo from "../components/trip-day-info";
 import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point";
 
 const renderTripDay = (daysElement, events, onDataChange, onViewChange, date = null) => {
   const tripDay = new TripDay();
-  if (date) {
-    const infoContainer = tripDay.getElement();
-    render(infoContainer, new TripDayInfo(date), RenderPosition.AFTERBEGIN);
-  }
+  const infoContainer = tripDay.getElement();
+  render(infoContainer, new TripDayInfo(date), RenderPosition.AFTERBEGIN);
   const eventListElement = tripDay.getElement().querySelector(`.trip-events__list`);
 
   const points = events.map((point) => {
@@ -88,7 +86,13 @@ export default class TripController {
 
   _renderPoints() {
     this._points = this._pointsModel.getPoints();
-    if (this._points.length > 0 || this._creatingPoint) {
+    const points = this._pointsModel.getPointsAll();
+    if (points === 0) {
+      if (this._creatingPoint) {
+        this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+      }
+      render(this._container.getElement(), this._noEvent, RenderPosition.BEFOREBEGIN);
+    } else {
       render(this._container.getElement(), this._sort, RenderPosition.BEFOREBEGIN);
       if (this._creatingPoint) {
         this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
@@ -126,20 +130,19 @@ export default class TripController {
 
       this._points.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
       this._pointControllers = renderDays(tripDaysList, this._points, this._onDataChange, this._onViewChange);
-    } else {
-      render(this._container.getElement(), this._noEvent, RenderPosition.BEFOREBEGIN);
     }
   }
 
   _renderInfo() {
     const points = this._pointsModel.getPointsAll();
     this._tripInfo = new TripInfo(points);
-    const tripInfo = document.querySelector(`.trip-main__trip-info`);
-    render(tripInfo, this._tripInfo, RenderPosition.AFTERBEGIN);
+    const tripInfoContainer = document.querySelector(`.trip-main__trip-info`);
+    render(tripInfoContainer, this._tripInfo, RenderPosition.AFTERBEGIN);
+  }
 
-    const totalElement = tripInfo.querySelector(`.trip-info__cost-value`);
-    const totalCost = points.reduce((reducer, event) => reducer + event.price, 0);
-    totalElement.textContent = totalCost.toString();
+  _removeInfo() {
+    this._tripInfo.removeElement();
+    document.querySelector(`.trip-main__trip-info`).textContent = ``;
   }
 
   render() {
@@ -227,9 +230,11 @@ export default class TripController {
 
   _updatePoints() {
     this._removePoints();
+    this._removeInfo();
     this._removeTripDays();
     this._createTripDays();
     this._clearContainer();
+    this._renderInfo();
     this._renderPoints();
   }
 }

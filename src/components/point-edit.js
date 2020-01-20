@@ -14,9 +14,10 @@ const DefaultData = {
 };
 
 const generateImagesMarkup = (images) => {
+  console.log(images);
   return images.map((image) => {
     return (
-      `<img class="event__photo" src="${image}" alt="Event photo">`
+      `<img class="event__photo" src="${image.src}" alt="${image.description}">`
     );
   }).join(`\n`);
 };
@@ -77,8 +78,9 @@ const generateDestinationsMarkup = (type, destination, isLocked) => {
 };
 
 const generateDetailsMarkup = (destination) => {
-  const imagesMarkup = destination.images && destination.images.length > 0 ? generateImagesMarkup(destination.images) : ``;
-  if (!imagesMarkup && !destination.description) {
+  console.log(destination);
+  const picturesMarkup = destination.pictures && destination.pictures.length > 0 ? generateImagesMarkup(destination.pictures) : ``;
+  if (!picturesMarkup && !destination.description) {
     return ``;
   }
   return (
@@ -90,7 +92,7 @@ const generateDetailsMarkup = (destination) => {
 
           <div class="event__photos-container">
             <div class="event__photos-tape">
-              ${imagesMarkup}
+              ${picturesMarkup}
             </div>
           </div>
         </section>`
