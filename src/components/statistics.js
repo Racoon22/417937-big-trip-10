@@ -324,9 +324,9 @@ export default class Statistics extends AbstractSmartComponent {
 
     this._resetCharts();
 
-    this._moneyChart = renderMoneyChart(moneyCtx, this._points.getPoints());
-    this._transportChart = renderTransportChart(transportCtx, this._points.getPoints());
-    this._timeChart = renderTimeChart(timeCtx, this._points.getPoints());
+    this._moneyChart = renderMoneyChart(moneyCtx, this._points.getPointsAll());
+    this._transportChart = renderTransportChart(transportCtx, this._points.getPointsAll());
+    this._timeChart = renderTimeChart(timeCtx, this._points.getPointsAll());
   }
 
   _resetCharts() {
