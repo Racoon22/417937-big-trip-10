@@ -112,7 +112,7 @@ const createEventAddTemplate = () => {
   );
 };
 
-export default class EventAdd extends AbstractComponent {
+export default class PointAdd extends AbstractComponent {
   getTemplate() {
     return createEventAddTemplate();
   }

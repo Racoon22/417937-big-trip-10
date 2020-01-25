@@ -18,21 +18,22 @@ export const EmptyPoint = {
   type: `flight`,
   destination: {},
   isFavorite: false,
-  dateStart: {},
-  dateEnd: {},
+  dateStart: new Date(),
+  dateEnd: new Date(),
   price: 0,
   offers: [],
 };
 
 const parseFormData = (formData) => {
-  const offers = window.offers.map((offer) => offer.offers).flat()
+  const type = formData.get(`event-type`);
+  const offers = window.offers.filter((offer) => offer.type === type).map((offer) => offer.offers).flat()
     .filter((offer) => {
       return formData.getAll(`event-offer`).some((acceptedOffer) => {
         return slugGenerator(offer.title) === acceptedOffer;
       });
     });
   return new Point({
-    'type': formData.get(`event-type`),
+    'type': type,
     'destination': window.destinations.find((destination) => destination.name === formData.get(`event-destination`)),
     'date_from': moment(formData.get(`event-start-time`)).toJSON(),
     'date_to': moment(formData.get(`event-end-time`)).toJSON(),

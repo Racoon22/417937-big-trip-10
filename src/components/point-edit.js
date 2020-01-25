@@ -114,8 +114,8 @@ const generateControlsMarkup = (isFavorite) => {
   );
 };
 
-const createFormMarkup = (event, mode, options = {}) => {
-  const {type, destination, isFavorite} = event;
+const createFormMarkup = (point, mode, options = {}) => {
+  const {type, destination, isFavorite} = point;
   const {price, dateStart, dateEnd, offers, externalData, isLocked, hasError, validation} = options;
 
   const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
