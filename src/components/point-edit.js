@@ -59,7 +59,7 @@ const generateCitiesMarkup = (destinations) => {
   });
 };
 
-const generateDestinationsMarkup = (type, destination, isLocked) => {
+const generateDestinationsMarkup = (type, destination, isLocked, validation) => {
   let placeholder = type.charAt(0).toUpperCase() + type.slice(1);
   placeholder += pointTypes.transfer.indexOf(type) > -1 ? ` to ` : ` in `;
   const destinationsDatalistMarkup = generateCitiesMarkup(window.destinations.filter((it) => it.name !== destination.name));
@@ -72,6 +72,7 @@ const generateDestinationsMarkup = (type, destination, isLocked) => {
         <datalist id="destination-list">
             ${destinationsDatalistMarkup}
         </datalist>
+        <span class="event__error-message ${validation.destination ? `` : `visually-hidden`}">Destination incorrect</span>
      </div>`
   );
 };
@@ -115,7 +116,7 @@ const generateControlsMarkup = (isFavorite) => {
 
 const createFormMarkup = (event, mode, options = {}) => {
   const {type, destination, isFavorite} = event;
-  const {price, dateStart, dateEnd, offers, externalData, isLocked, hasError} = options;
+  const {price, dateStart, dateEnd, offers, externalData, isLocked, hasError, validation} = options;
 
   const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
 
@@ -124,7 +125,7 @@ const createFormMarkup = (event, mode, options = {}) => {
   let availableOffers = window.offers.find((offer) => offer.type === type);
 
   const offersMarkup = generateOffersMarkup(availableOffers.offers, offers);
-  const destinationMarkup = generateDestinationsMarkup(type, destination, isLocked);
+  const destinationMarkup = generateDestinationsMarkup(type, destination, isLocked, validation);
   const detailsMarkup = generateDetailsMarkup(destination);
 
   const transferTypes = generateTypesMarkup(pointTypes.transfer, type);
@@ -171,6 +172,7 @@ const createFormMarkup = (event, mode, options = {}) => {
             To
           </label>
           <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${formattedDateEnd}" ${isLocked ? `disabled` : ``}>
+          <span class="event__error-message ${validation.time ? `` : `visually-hidden`}">Date incorrect</span>
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -221,6 +223,9 @@ export default class PointEdit extends AbstractSmartComponent {
     this._isLocked = false;
     this._hasError = false;
 
+    this._errorTime = false;
+    this._errorDestination = false;
+
     this._subscribeOnEvents();
     this._flatpikrDayStart = null;
     this._flatpikrDayEnd = null;
@@ -241,7 +246,11 @@ export default class PointEdit extends AbstractSmartComponent {
       offers: this._offers,
       externalData: this._externalData,
       isLocked: this._isLocked,
-      hasError: this._hasError
+      hasError: this._hasError,
+      validation: {
+        time: this._errorTime,
+        destination: this._errorDestination
+      }
     });
   }
 
@@ -305,6 +314,10 @@ export default class PointEdit extends AbstractSmartComponent {
 
   isLocked() {
     return this._isLocked;
+  }
+
+  isValid() {
+    return !this._point.destination.name || this._errorTime || this._errorDestination;
   }
 
   lock() {
@@ -391,20 +404,20 @@ export default class PointEdit extends AbstractSmartComponent {
 
     element.querySelector(`#event-start-time`).addEventListener(`change`, (evt) => {
       this._dateStart = new Date(evt.target.value);
+      this.validateTime();
       this.rerender();
     });
 
     element.querySelector(`#event-end-time`).addEventListener(`change`, (evt) => {
       this._dateEnd = new Date(evt.target.value);
+      this.validateTime();
+
       this.rerender();
     });
 
     element.querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
       const destinationValue = evt.target.value;
-
-      if (destinationValue === ``) {
-        return;
-      }
+      this._errorDestination = false;
 
       if (this._point.destination.name === destinationValue) {
         return;
@@ -415,12 +428,20 @@ export default class PointEdit extends AbstractSmartComponent {
       });
 
       if (!destination) {
+        this._errorDestination = true;
+        this._point.destination = {};
+        this.rerender();
         return;
       }
 
       this._point.destination = destination;
       this.rerender();
     });
+  }
+
+  validateTime() {
+    this._errorTime = false;
+    this._errorTime = this._dateEnd <= this._dateStart;
   }
 
   reset() {

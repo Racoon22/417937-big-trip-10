@@ -956,7 +956,12 @@ main {
 }
 
 .event__field-group--destination {
+  position: relative;
   width: 290px;
+}
+
+.event__field-group--time {
+  position: relative;
 }
 
 .event__label {
@@ -1202,4 +1207,10 @@ main {
 
 .event--error {
   border: 1px solid red;
+}
+
+.event__error-message {
+  position: absolute;
+  bottom: -25px;
+  color: red;
 }

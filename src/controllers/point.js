@@ -89,6 +89,10 @@ export default class PointController {
         return;
       }
 
+      if (this._pointEditComponent.isValid()) {
+        return;
+      }
+
       if (this._pointEditComponent.getError()) {
         this._pointEditComponent.clearError();
       }

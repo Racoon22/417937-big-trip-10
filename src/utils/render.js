@@ -10,13 +10,7 @@ export const createElement = (template) => {
 };
 
 export const render = (container, element, place) => {
-  switch (place) {
-    case RenderPosition.AFTERBEGIN:
-      container.prepend(element.getElement());
-      break;
-    default:
-      container.append(element.getElement());
-  }
+  return place === RenderPosition.AFTERBEGIN ? container.prepend(element.getElement()) : container.append(element.getElement());
 };
 
 export const remove = (component) => {
