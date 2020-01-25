@@ -5,7 +5,7 @@ export const FilterType = {
 };
 
 export const pointTypes = {
-  transport: [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`],
+  transfer: [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`],
   activity: [`check-in`, `sightseeing`, `restaurant`]
 };
 

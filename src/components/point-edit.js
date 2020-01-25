@@ -16,7 +16,7 @@ const DefaultData = {
 const generateImagesMarkup = (images) => {
   return images.map((image) => {
     return (
-      `<img class="event__photo" src="${image}" alt="Event photo">`
+      `<img class="event__photo" src="${image.src}" alt="${image.description}">`
     );
   }).join(`\n`);
 };
@@ -37,16 +37,16 @@ const generateOffersMarkup = (availableOffers, offers) => {
   return availableOffers.map((it) => {
     const {title, price} = it;
     const slug = slugGenerator(title);
-    const isChecked = availableOffers.length > 0 && offers.some((offer) => offer.title === title);
+    const checkedOffers = offers.find((offer) => offer.title === title);
     return (
       `<div class="event__offer-selector">
-       <input class="event__offer-checkbox  visually-hidden" id="event-offer-${slug}" type="checkbox" value="${slug}" name="event-offer" ${isChecked ? `checked` : ``}>
+       <input class="event__offer-checkbox  visually-hidden" id="event-offer-${slug}" type="checkbox" value="${slug}" name="event-offer" ${checkedOffers ? `checked` : ``}>
        <label class="event__offer-label" for="event-offer-${slug}">
          <span class="event__offer-title">${title}</span>
           &plus;
-          &euro;&nbsp;<span class="event__offer-price">${price}</span>
-        </label>
-      </div>`
+          &euro;&nbsp;<span class="event__offer-price">${checkedOffers ? checkedOffers.price : price}</span>
+          </label>
+        </div>`
     );
   }).join(`\n`);
 };
@@ -61,7 +61,7 @@ const generateCitiesMarkup = (destinations) => {
 
 const generateDestinationsMarkup = (type, destination, isLocked) => {
   let placeholder = type.charAt(0).toUpperCase() + type.slice(1);
-  placeholder += type.category === `transfer` ? ` to ` : ` in `;
+  placeholder += pointTypes.transfer.indexOf(type) > -1 ? ` to ` : ` in `;
   const destinationsDatalistMarkup = generateCitiesMarkup(window.destinations.filter((it) => it.name !== destination.name));
   return (
     `<div class="event__field-group  event__field-group--destination">
@@ -77,8 +77,8 @@ const generateDestinationsMarkup = (type, destination, isLocked) => {
 };
 
 const generateDetailsMarkup = (destination) => {
-  const imagesMarkup = destination.images && destination.images.length > 0 ? generateImagesMarkup(destination.images) : ``;
-  if (!imagesMarkup && !destination.description) {
+  const picturesMarkup = destination.pictures && destination.pictures.length > 0 ? generateImagesMarkup(destination.pictures) : ``;
+  if (!picturesMarkup && !destination.description) {
     return ``;
   }
   return (
@@ -90,7 +90,7 @@ const generateDetailsMarkup = (destination) => {
 
           <div class="event__photos-container">
             <div class="event__photos-tape">
-              ${imagesMarkup}
+              ${picturesMarkup}
             </div>
           </div>
         </section>`
@@ -127,7 +127,7 @@ const createFormMarkup = (event, mode, options = {}) => {
   const destinationMarkup = generateDestinationsMarkup(type, destination, isLocked);
   const detailsMarkup = generateDetailsMarkup(destination);
 
-  const transferTypes = generateTypesMarkup(pointTypes.transport, type);
+  const transferTypes = generateTypesMarkup(pointTypes.transfer, type);
   const activityTypes = generateTypesMarkup(pointTypes.activity, type);
 
   const controlsMarkup = mode === Mode.ADDING ? `` : generateControlsMarkup(isFavorite);

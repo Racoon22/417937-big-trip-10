@@ -1,6 +1,7 @@
 import {castTimeFormat} from "../utils/common";
 import AbstractComponent from "./abstract-component";
 import moment from "moment";
+import {pointTypes} from "../const";
 
 const generateTimeInterval = (dateStart, dateEnd) => {
   const timeDiff = moment(dateEnd).diff(moment(dateStart));
@@ -48,7 +49,7 @@ const createTripEventTemplate = (event) => {
   const offersMarkup = generateOffersMarkup(offers);
 
   let placeholder = type.charAt(0).toUpperCase() + type.slice(1);
-  placeholder += type.category === `transfer` ? ` to ` : ` in `;
+  placeholder += pointTypes.transfer.indexOf(type) > -1 ? ` to ` : ` in `;
   const title = placeholder + destination.name;
 
   return (
