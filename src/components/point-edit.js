@@ -1,7 +1,6 @@
 import moment from "moment";
-
-require(`flatpickr/dist/flatpickr.min.css`);
 import flatpikr from "flatpickr";
+import 'flatpickr/dist/flatpickr.min.css';
 import AbstractSmartComponent from "./abstract-smart-component";
 import {Mode} from "../controllers/point";
 import {slugGenerator} from "../utils/common";
