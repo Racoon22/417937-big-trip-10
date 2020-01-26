@@ -8,7 +8,7 @@ import TripController from "./controllers/trip";
 import PointsModel from "./models/points";
 import NewPointComponent from "./components/new-point";
 
-const AUTHORIZATION = `Basic dXNlckBwYXAlexANzd29yZAo`;
+const AUTHORIZATION = `Basic dXNlckBwYXAlexANzd29yZAok`;
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip/`;
 
 const api = new API(END_POINT, AUTHORIZATION);

@@ -11,7 +11,7 @@ export const Mode = {
   EDIT: `edit`,
 };
 
-export const EmptyPoint = {
+export const emptyPoint = {
   id: null,
   type: `flight`,
   destination: {},
@@ -194,7 +194,7 @@ export default class PointController {
   _escPressDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       if (this._mode === Mode.ADDING) {
-        this._dataChangeHandler(this, EmptyPoint, null);
+        this._dataChangeHandler(this, emptyPoint, null);
       }
       this._replaceEditToPoint();
     }

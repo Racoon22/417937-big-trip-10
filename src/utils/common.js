@@ -9,10 +9,10 @@ export const capitalizeFirstLetter = (string) => {
   return string.slice(0, 1).toUpperCase() + string.slice(1);
 };
 
-export const isOneDay = (dateA, dateB) => {
-  const a = moment(dateA);
-  const b = moment(dateB);
-  return a.diff(b, `days`) === 0 && dateA.getDate() === dateB.getDate();
+export const isOneDay = (firstDate, secondDate) => {
+  const a = moment(firstDate);
+  const b = moment(secondDate);
+  return a.diff(b, `days`) === 0 && firstDate.getDate() === secondDate.getDate();
 };
 
 export const slugGenerator = (text) => {

@@ -1,11 +1,11 @@
 import TripDay from "../components/trip-day";
 import TripInfo from "../components/trip-info";
-import Sort, {sortTypes} from "../components/sort";
+import Sort, {SortTypes} from "../components/sort";
 import TripDays from "../components/trip-days";
 import NoEvent from "../components/no-points";
 import {render, RenderPosition} from "../utils/render";
 import TripDayInfo from "../components/trip-day-info";
-import PointController, {Mode as PointControllerMode, EmptyPoint} from "./point";
+import PointController, {Mode as PointControllerMode, emptyPoint} from "./point";
 import moment from "moment";
 
 const renderTripDay = (daysElement, events, configs, dataChangeHandler, viewChangeHandler, counter, date = null) => {
@@ -54,6 +54,7 @@ export default class TripController {
     this._container = container;
     this._pointsModel = pointsModel;
     this._api = api;
+
     this._tripInfoContainer = document.querySelector(`.trip-main__trip-info`);
 
     this._tripDays = new TripDays();
@@ -70,7 +71,7 @@ export default class TripController {
     this._viewChangeHandler = this._viewChangeHandler.bind(this);
     this._filterChangeHandler = this._filterChangeHandler.bind(this);
     this._pointsModel.setFilterChangeHandler(this._filterChangeHandler);
-    this._sortType = sortTypes.EVENT;
+    this._sortType = SortTypes.EVENT;
 
   }
 
@@ -116,13 +117,13 @@ export default class TripController {
     const points = this._pointsModel.getPointsAll();
     if (points.length === 0) {
       if (this._creatingPoint) {
-        this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+        this._creatingPoint.render(emptyPoint, PointControllerMode.ADDING);
       }
       render(this._container.getElement(), this._noEvent, RenderPosition.BEFOREBEGIN);
     } else {
       render(this._container.getElement(), this._sort, RenderPosition.BEFOREBEGIN);
       if (this._creatingPoint) {
-        this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+        this._creatingPoint.render(emptyPoint, PointControllerMode.ADDING);
       }
       render(this._container.getElement(), this._tripDays, RenderPosition.BEFOREBEGIN);
 
@@ -142,10 +143,10 @@ export default class TripController {
 
     let sortedPoints = [];
     switch (this._sortType) {
-      case sortTypes.PRICE:
+      case SortTypes.PRICE:
         sortedPoints = this._points.sort((a, b) => b.price - a.price);
         break;
-      case sortTypes.TIME:
+      case SortTypes.TIME:
         sortedPoints = this._points.sort((a, b) => {
           const diff = moment(b.dateEnd).diff(moment(b.dateStart)) - (moment(a.dateEnd).diff(moment(a.dateStart)));
           if (diff > 1) {
@@ -157,12 +158,12 @@ export default class TripController {
           }
         });
         break;
-      case sortTypes.EVENT:
+      case SortTypes.EVENT:
         sortedPoints = this._points.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
         break;
     }
 
-    if (this._sortType === sortTypes.EVENT) {
+    if (this._sortType === SortTypes.EVENT) {
       this._pointControllers = renderDays(tripDaysList, sortedPoints, this._getConfigs(), this._dataChangeHandler, this._viewChangeHandler);
       dateSortLabel.textContent = `Day`;
     } else {
@@ -214,7 +215,7 @@ export default class TripController {
   }
 
   _dataChangeHandler(pointController, oldData, newData) {
-    if (oldData === EmptyPoint) {
+    if (oldData === emptyPoint) {
       this._creatingPoint = null;
       if (newData === null) {
         pointController.destroy();

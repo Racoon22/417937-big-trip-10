@@ -21,11 +21,11 @@
     "node": "10"
   },
   "dependencies": {
-    "chart.js": "^2.9.3",
-    "chartjs-plugin-datalabels": "^0.7.0",
-    "css-loader": "^3.3.2",
-    "flatpickr": "^4.6.3",
+    "chart.js": "2.9.3",
+    "chartjs-plugin-datalabels": "0.7.0",
+    "css-loader": "3.3.2",
+    "flatpickr": "4.6.3",
     "moment": "2.24.0",
-    "style-loader": "^1.0.1"
+    "style-loader": "1.0.1"
   }
 }
