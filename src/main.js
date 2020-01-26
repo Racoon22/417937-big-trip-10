@@ -8,7 +8,7 @@ import TripController from "./controllers/trip";
 import PointsModel from "./models/points";
 import NewPointComponent from "./components/new-point";
 
-const AUTHORIZATION = `Basic dXNlckBwYXAlexANzd29yZA2o`;
+const AUTHORIZATION = `Basic dXNlckBwYXAlexANzd29yZAo`;
 const END_POINT = `https://htmlacademy-es-10.appspot.com/big-trip/`;
 
 const api = new API(END_POINT, AUTHORIZATION);
@@ -58,11 +58,11 @@ menuComponent.setOnClick((menuItem) => {
 Promise.all([
   api.getOffers()
     .then((offers) => {
-      window.offers = offers;
+      tripController.setOffers(offers);
     }),
   api.getDestination()
     .then((destinations) => {
-      window.destinations = destinations;
+      tripController.setDestinations(destinations);
     }),
 ]).then(() => {
   api.getPoints()

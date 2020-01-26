@@ -3,14 +3,16 @@ import flatpikr from "flatpickr";
 import 'flatpickr/dist/flatpickr.min.css';
 import AbstractSmartComponent from "./abstract-smart-component";
 import {Mode} from "../controllers/point";
-import {slugGenerator} from "../utils/common";
+import {placeholderGenerator, slugGenerator} from "../utils/common";
 import {pointTypes} from "../const";
 
-const DefaultData = {
-  DeleteButtonText: `Delete`,
-  SaveButtonText: `Save`,
-  CancelButtonText: `Cancel`
+const ButtonText = {
+  DELETE: `Delete`,
+  SAVE: `Save`,
+  CANCEL: `Cancel`
 };
+
+const SHAKE_ANIMATION_TIMEOUT = 600;
 
 const generateImagesMarkup = (images) => {
   return images.map((image) => {
@@ -58,10 +60,9 @@ const generateCitiesMarkup = (destinations) => {
   });
 };
 
-const generateDestinationsMarkup = (type, destination, isLocked, validation) => {
-  let placeholder = type.charAt(0).toUpperCase() + type.slice(1);
-  placeholder += pointTypes.transfer.indexOf(type) > -1 ? ` to ` : ` in `;
-  const destinationsDatalistMarkup = generateCitiesMarkup(window.destinations.filter((it) => it.name !== destination.name));
+const generateDestinationsMarkup = (type, destinationsList, destination, isLocked, validation) => {
+  const placeholder = placeholderGenerator(type);
+  const destinationsDatalistMarkup = generateCitiesMarkup(destinationsList.filter((it) => it.name !== destination.name));
   return (
     `<div class="event__field-group  event__field-group--destination">
        <label class="event__label  event__type-output" for="event-destination-1">
@@ -113,18 +114,19 @@ const generateControlsMarkup = (isFavorite) => {
   );
 };
 
-const createFormMarkup = (point, mode, options = {}) => {
+const createFormMarkup = (point, configs, mode, options = {}) => {
   const {type, destination, isFavorite} = point;
+  const {offers: offersList, destinations: destinationsList} = configs;
   const {price, dateStart, dateEnd, offers, externalData, isLocked, hasError, validation} = options;
 
   const formattedDateStart = moment(dateStart).format(`DD/MM/YY HH:mm`);
 
   const formattedDateEnd = moment(dateEnd);
 
-  let availableOffers = window.offers.find((offer) => offer.type === type);
+  const availableOffers = offersList.find((offer) => offer.type === type);
 
   const offersMarkup = generateOffersMarkup(availableOffers.offers, offers);
-  const destinationMarkup = generateDestinationsMarkup(type, destination, isLocked, validation);
+  const destinationMarkup = generateDestinationsMarkup(type, destinationsList, destination, isLocked, validation);
   const detailsMarkup = generateDetailsMarkup(destination);
 
   const transferTypes = generateTypesMarkup(pointTypes.transfer, type);
@@ -132,8 +134,8 @@ const createFormMarkup = (point, mode, options = {}) => {
 
   const controlsMarkup = mode === Mode.ADDING ? `` : generateControlsMarkup(isFavorite);
 
-  const deleteButtonText = mode === Mode.ADDING ? externalData.CancelButtonText : externalData.DeleteButtonText;
-  const saveButtonText = externalData.SaveButtonText;
+  const deleteButtonText = mode === Mode.ADDING ? externalData.CANCEL : externalData.DELETE;
+  const saveButtonText = externalData.SAVE;
 
 
   return (
@@ -203,13 +205,13 @@ const createFormMarkup = (point, mode, options = {}) => {
   );
 };
 
-const createEventEditTemplate = (event, mode, options = {}) => {
-  const formMarkup = createFormMarkup(event, mode, options);
+const createEventEditTemplate = (event, configs, mode, options = {}) => {
+  const formMarkup = createFormMarkup(event, configs, mode, options);
   return mode === Mode.DEFAULT ? `<li class="trip-events__item">${formMarkup}</li>` : formMarkup;
 };
 
 export default class PointEdit extends AbstractSmartComponent {
-  constructor(point, mode = Mode.DEFAULT) {
+  constructor(point, config, mode = Mode.DEFAULT) {
     super();
     this._mode = mode;
     this._point = point;
@@ -217,7 +219,11 @@ export default class PointEdit extends AbstractSmartComponent {
     this._dateStart = point.dateStart;
     this._dateEnd = point.dateEnd;
     this._offers = point.offers;
-    this._externalData = DefaultData;
+    this._externalData = ButtonText;
+
+    this._configs = config;
+
+    this._offers = [];
 
     this._isLocked = false;
     this._hasError = false;
@@ -238,19 +244,22 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createEventEditTemplate(this._point, this._mode, {
-      price: this._price,
-      dateStart: this._dateStart,
-      dateEnd: this._dateEnd,
-      offers: this._offers,
-      externalData: this._externalData,
-      isLocked: this._isLocked,
-      hasError: this._hasError,
-      validation: {
-        time: this._errorTime,
-        destination: this._errorDestination
-      }
-    });
+    return createEventEditTemplate(this._point,
+        this._configs,
+        this._mode,
+        {
+          price: this._price,
+          dateStart: this._dateStart,
+          dateEnd: this._dateEnd,
+          offers: this._offers,
+          externalData: this._externalData,
+          isLocked: this._isLocked,
+          hasError: this._hasError,
+          validation: {
+            time: this._errorTime,
+            destination: this._errorDestination
+          }
+        });
   }
 
   getData() {
@@ -307,8 +316,20 @@ export default class PointEdit extends AbstractSmartComponent {
   }
 
   setData(data) {
-    this._externalData = Object.assign({}, DefaultData, data);
+    this._externalData = Object.assign({}, ButtonText, data);
     this.rerender();
+  }
+
+  shake() {
+    setTimeout(() => {
+      this.getElement().style.animation = ``;
+
+      this._externalData = {
+        saveButtonText: `Save`,
+        deleteButtonText: `Delete`,
+      };
+
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 
   isLocked() {
@@ -422,7 +443,7 @@ export default class PointEdit extends AbstractSmartComponent {
         return;
       }
 
-      const destination = window.destinations.find((it) => {
+      const destination = this._configs.destinations.find((it) => {
         return it.name === destinationValue;
       });
 

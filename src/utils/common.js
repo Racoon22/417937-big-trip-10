@@ -1,27 +1,5 @@
 import moment from "moment";
-
-export const getRandomInteger = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-export const getRandomArrayItem = (array) => {
-  return array[getRandomInteger(0, array.length - 1)];
-};
-
-export const getRandomDateTime = () => {
-  const targetDate = new Date();
-  const sing = Math.random() > 0.5 ? 1 : -1;
-  const diffValue = sing * getRandomInteger(0, 2);
-  const hours = getRandomInteger(0, 23);
-  const minutes = getRandomInteger(0, 59);
-  targetDate.setDate(targetDate.getDate() + diffValue);
-  targetDate.setHours(hours, minutes);
-
-  return targetDate;
-};
+import {pointTypes} from "../const";
 
 export const castTimeFormat = (date) => {
   return moment(date).format(`HH:mm`);
@@ -39,4 +17,9 @@ export const isOneDay = (dateA, dateB) => {
 
 export const slugGenerator = (text) => {
   return text.toLowerCase().replace(/\W/g, `-`);
+};
+
+export const placeholderGenerator = (type) => {
+  const placeholder = type.charAt(0).toUpperCase() + type.slice(1);
+  return placeholder + (pointTypes.transfer.indexOf(type) > -1 ? ` to ` : ` in `);
 };

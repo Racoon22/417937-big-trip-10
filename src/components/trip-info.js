@@ -1,27 +1,25 @@
 import AbstractComponent from "./abstract-component";
 import moment from "moment";
 
+const MAX_SHOWED_DESTINATIONS = 3;
+
 const getCities = (points) => {
-  let cities = points.map((event) => event.destination);
+  const cities = points.map((event) => event.destination);
   return new Set(cities);
 };
 
 const getDuration = (points) => {
   const dateStart = moment(points[0].dateStart);
   const dateFinish = moment(points[points.length - 1].dateStart);
-  let duration;
-  if (dateStart.format(`M`) === dateFinish.format(`M`)) {
-    duration = `${dateStart.format(`MMM`)} ${dateStart.format(`DD`)} &mdash; ${dateFinish.format(`DD`)}`;
-  } else {
-    duration = `${dateStart.format(`MMM`)} ${dateStart.format(`DD`)} &mdash; ${dateFinish.format(`MMM`)} ${dateFinish.format(`DD`)}`;
-  }
-  return duration;
+  return dateStart.format(`M`) === dateFinish.format(`M`) ?
+    `${dateStart.format(`MMM`)} ${dateStart.format(`DD`)} &mdash; ${dateFinish.format(`DD`)}` :
+    `${dateStart.format(`MMM`)} ${dateStart.format(`DD`)} &mdash; ${dateFinish.format(`MMM`)} ${dateFinish.format(`DD`)}`;
 };
 
 const createTripInfoTemplate = (points) => {
   points.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime());
   const destinations = Array.from(getCities(points));
-  const title = destinations.length > 3 ? `${destinations.shift().name} &mdash; ... &mdash; ${destinations.pop().name}` : destinations.map((destination) => destination.name).join(` &mdash; `);
+  const title = destinations.length > MAX_SHOWED_DESTINATIONS ? `${destinations.shift().name} &mdash; ... &mdash; ${destinations.pop().name}` : destinations.map((destination) => destination.name).join(` &mdash; `);
   const duration = getDuration(points);
   const price = points.reduce((acc, point) => {
     return acc + point.price + point.offers.reduce((offersPrice, offer) => {

@@ -5,8 +5,6 @@ import {slugGenerator} from "../utils/common";
 import moment from "moment";
 import Point from "../models/point";
 
-const SHAKE_ANIMATION_TIMEOUT = 600;
-
 export const Mode = {
   ADDING: `adding`,
   DEFAULT: `default`,
@@ -24,9 +22,9 @@ export const EmptyPoint = {
   offers: [],
 };
 
-const parseFormData = (formData) => {
+const parseFormData = (formData, offers, destinations) => {
   const type = formData.get(`event-type`);
-  const offers = window.offers.filter((offer) => offer.type === type).map((offer) => offer.offers).flat()
+  const typeOffers = offers.filter((offer) => offer.type === type).map((offer) => offer.offers).flat()
     .filter((offer) => {
       return formData.getAll(`event-offer`).some((acceptedOffer) => {
         return slugGenerator(offer.title) === acceptedOffer;
@@ -34,26 +32,37 @@ const parseFormData = (formData) => {
     });
   return new Point({
     'type': type,
-    'destination': window.destinations.find((destination) => destination.name === formData.get(`event-destination`)),
+    'destination': destinations.find((destination) => destination.name === formData.get(`event-destination`)),
     'date_from': moment(formData.get(`event-start-time`)).toJSON(),
     'date_to': moment(formData.get(`event-end-time`)).toJSON(),
     'is_favorite': Boolean(formData.get(`event-favorite`)),
     'base_price': parseInt(formData.get(`event-price`), 10),
-    'offers': offers
+    'offers': typeOffers
   });
 };
 
 export default class PointController {
-  constructor(container, onDataChange, onViewChange) {
+  constructor(container, config, dataChangeHandler, viewChangeHandler) {
     this._container = container;
-    this._onDataChange = onDataChange;
-    this._onViewChange = onViewChange;
+    this._dataChangeHandler = dataChangeHandler;
+    this._viewChangeHandler = viewChangeHandler;
 
     this._mode = Mode.DEFAULT;
     this._pointComponent = null;
     this._pointEditComponent = null;
+    this._config = config;
 
-    this._onEscPressDown = this._onEscPressDown.bind(this);
+    this._escPressDownHandler = this._escPressDownHandler.bind(this);
+  }
+
+  setDefaultView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._replaceEditToPoint();
+    }
+  }
+
+  setError() {
+    this._pointEditComponent.setError();
   }
 
   render(point, mode) {
@@ -62,11 +71,11 @@ export default class PointController {
     this._mode = mode;
 
     this._pointComponent = new PointComponent(point);
-    this._pointEditComponent = new PointEditComponent(point, mode);
+    this._pointEditComponent = new PointEditComponent(point, this._config, mode);
 
     this._pointComponent.setEditButtonClickHandler(() => {
       this._replacePointToEdit();
-      document.addEventListener(`keydown`, this._onEscPressDown);
+      document.addEventListener(`keydown`, this._escPressDownHandler);
     });
 
     this._pointEditComponent.setFavoriteButtonClickHandler(() => {
@@ -75,9 +84,9 @@ export default class PointController {
       }
       const newPoint = Point.clone(point);
       newPoint.isFavorite = !newPoint.isFavorite;
-      this._onDataChange(this, point, newPoint);
+      this._dataChangeHandler(this, point, newPoint);
 
-      document.addEventListener(`keydown`, this._onEscPressDown);
+      document.addEventListener(`keydown`, this._escPressDownHandler);
     });
 
     this._pointEditComponent.setCloseButtonClickHandler(() => {
@@ -99,14 +108,14 @@ export default class PointController {
       }
 
       const formData = this._pointEditComponent.getData();
-      const data = parseFormData(formData);
+      const data = parseFormData(formData, this._config.offers, this._config.destinations);
 
       this._pointEditComponent.lock();
       this._pointEditComponent.setData({
-        SaveButtonText: `Saving...`
+        SAVE: `Saving...`
       });
 
-      this._onDataChange(this, point, data);
+      this._dataChangeHandler(this, point, data);
     });
 
     this._pointEditComponent.setDeleteButtonClickHandler(() => {
@@ -120,10 +129,10 @@ export default class PointController {
 
       this._pointEditComponent.lock();
       this._pointEditComponent.setData({
-        DeleteButtonText: `Deleting...`
+        DELETE: `Deleting...`
       });
 
-      this._onDataChange(this, point, null);
+      this._dataChangeHandler(this, point, null);
     });
 
     switch (mode) {
@@ -141,58 +150,16 @@ export default class PointController {
           replace(this._pointComponent, oldPointComponent);
           replace(this._pointEditComponent, oldPointEditComponent);
         }
-        document.addEventListener(`keydown`, this._onEscPressDown);
+        document.addEventListener(`keydown`, this._escPressDownHandler);
         render(this._container, this._pointEditComponent, RenderPosition.BEFOREBEGIN);
         break;
     }
   }
 
-  _replaceEditToPoint() {
-    this._pointEditComponent.reset();
-
-    document.removeEventListener(`keydown`, this._onEscPressDown);
-
-    replace(this._pointComponent, this._pointEditComponent);
-    this._mode = Mode.DEFAULT;
-  }
-
-  _replacePointToEdit() {
-    this._onViewChange();
-
-    replace(this._pointEditComponent, this._pointComponent);
-    this._mode = Mode.EDIT;
-  }
-
-  _onEscPressDown(evt) {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
-      if (this._mode === Mode.ADDING) {
-        this._onDataChange(this, EmptyPoint, null);
-      }
-      this._replaceEditToPoint();
-    }
-    document.removeEventListener(`keydown`, this._onEscPressDown);
-  }
-
   shake() {
-    this._pointEditComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
-    this._pointComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
-
-    setTimeout(() => {
-      this._pointEditComponent.getElement().style.animation = ``;
-      this._pointComponent.getElement().style.animation = ``;
-
-      this._pointEditComponent.setData({
-        saveButtonText: `Save`,
-        deleteButtonText: `Delete`,
-      });
-    }, SHAKE_ANIMATION_TIMEOUT);
+    this._pointEditComponent.shake();
   }
 
-  setDefaultView() {
-    if (this._mode !== Mode.DEFAULT) {
-      this._replaceEditToPoint();
-    }
-  }
 
   lock() {
     this._pointEditComponent.lock();
@@ -202,13 +169,35 @@ export default class PointController {
     this._pointEditComponent.unlock();
   }
 
-  setError() {
-    this._pointEditComponent.setError();
-  }
-
   destroy() {
     remove(this._pointComponent);
     remove(this._pointEditComponent);
-    document.removeEventListener(`keydown`, this._onEscPressDown);
+    document.removeEventListener(`keydown`, this._escPressDownHandler);
+  }
+
+  _replaceEditToPoint() {
+    this._pointEditComponent.reset();
+
+    document.removeEventListener(`keydown`, this._escPressDownHandler);
+
+    replace(this._pointComponent, this._pointEditComponent);
+    this._mode = Mode.DEFAULT;
+  }
+
+  _replacePointToEdit() {
+    this._viewChangeHandler();
+
+    replace(this._pointEditComponent, this._pointComponent);
+    this._mode = Mode.EDIT;
+  }
+
+  _escPressDownHandler(evt) {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      if (this._mode === Mode.ADDING) {
+        this._dataChangeHandler(this, EmptyPoint, null);
+      }
+      this._replaceEditToPoint();
+    }
+    document.removeEventListener(`keydown`, this._escPressDownHandler);
   }
 }

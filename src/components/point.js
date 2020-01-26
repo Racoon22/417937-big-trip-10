@@ -1,13 +1,14 @@
-import {castTimeFormat} from "../utils/common";
+import {castTimeFormat, placeholderGenerator} from "../utils/common";
 import AbstractComponent from "./abstract-component";
 import moment from "moment";
-import {pointTypes} from "../const";
+
+const MAX_SHOWED_OFFERS = 3;
 
 const generateTimeInterval = (dateStart, dateEnd) => {
   const timeDiff = moment(dateEnd).diff(moment(dateStart));
-  let daysDiff = moment.utc(timeDiff).format(`DD`);
-  let hoursDiff = moment.utc(timeDiff).format(`HH`);
-  let minutesDiff = moment.utc(timeDiff).format(`mm`);
+  const daysDiff = moment.utc(timeDiff).format(`DD`);
+  const hoursDiff = moment.utc(timeDiff).format(`HH`);
+  const minutesDiff = moment.utc(timeDiff).format(`mm`);
 
   let formattedInterval = daysDiff > 0 ? castDateInterval(daysDiff) : ``;
   if (daysDiff > 0 || hoursDiff > 0) {
@@ -29,7 +30,7 @@ const castMinutesInterval = (minutes) => {
 };
 
 const generateOffersMarkup = (offers) => {
-  return offers.slice(0, 3).map((offer) => {
+  return offers.slice(0, MAX_SHOWED_OFFERS).map((offer) => {
     return (
       `<li class="event__offer">
       <span class="event__offer-title">${offer.title}</span>
@@ -48,8 +49,7 @@ const createTripEventTemplate = (event) => {
   const timeEnd = castTimeFormat(dateEnd);
   const offersMarkup = generateOffersMarkup(offers);
 
-  let placeholder = type.charAt(0).toUpperCase() + type.slice(1);
-  placeholder += pointTypes.transfer.indexOf(type) > -1 ? ` to ` : ` in `;
+  const placeholder = placeholderGenerator(type);
   const title = placeholder + destination.name;
 
   return (
