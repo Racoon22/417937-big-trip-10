@@ -223,8 +223,6 @@ export default class PointEdit extends AbstractSmartComponent {
 
     this._configs = config;
 
-    this._offers = [];
-
     this._isLocked = false;
     this._hasError = false;
 
