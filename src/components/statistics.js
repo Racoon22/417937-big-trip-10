@@ -94,13 +94,13 @@ const renderMoneyChart = (moneyCtx, points) => {
 };
 
 const renderTransportChart = (transportCtx, points) => {
-  const transportCountByTypes = points.reduce((obj, p) => {
-    if (obj[p.type]) {
-      obj[p.type]++;
+  const transportCountByTypes = points.reduce((acc, point) => {
+    if (acc[point.type]) {
+      acc[point.type]++;
     } else {
-      obj[p.type] = 1;
+      acc[point.type] = 1;
     }
-    return obj;
+    return acc;
   }, {});
 
   return new Chart(transportCtx, {
