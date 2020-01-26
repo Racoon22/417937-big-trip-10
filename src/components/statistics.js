@@ -2,8 +2,8 @@ import AbstractSmartComponent from "./abstract-smart-component";
 import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
-const getUniqItems = (item, index, array) => {
-  return array.indexOf(item) === index;
+const getUniqItems = (item, index, items) => {
+  return items.indexOf(item) === index;
 };
 
 const renderMoneyChart = (moneyCtx, points) => {
@@ -94,18 +94,22 @@ const renderMoneyChart = (moneyCtx, points) => {
 };
 
 const renderTransportChart = (transportCtx, points) => {
-  const types = points.map((point) => point.type).filter(getUniqItems);
-  const transportCountByTypes = types.map((type) => {
-    return points.filter((point) => point.type === type).length;
-  });
+  const transportCountByTypes = points.reduce((obj, p) => {
+    if (obj[p.type]) {
+      obj[p.type]++;
+    } else {
+      obj[p.type] = 1;
+    }
+    return obj;
+  }, {});
 
   return new Chart(transportCtx, {
-    plugins: [ChartDataLabels],
+    plugins: [Object.keys(transportCountByTypes)],
     type: `horizontalBar`,
     data: {
-      labels: types,
+      labels: Object.keys(transportCountByTypes),
       datasets: [{
-        data: transportCountByTypes,
+        data: Object.values(transportCountByTypes),
         backgroundColor: `#ffffff`,
         borderColor: `#ffffff`,
         barPercentage: 0.5,
